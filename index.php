@@ -20,7 +20,7 @@ CSSフレームワーク: Tailwind CSS
 構成
 
 フロントエンド
-Vue.js
+node.js
 Vite
 Tailwind CSS
 バックエンド
