@@ -68,7 +68,7 @@ Docker
 開発手順
 
 Laravel 10 プロジェクトを新規作成
-node.js プロジェクトを新規作成
+Vue.js プロジェクトを新規作成
 Vite をインストール
 Tailwind CSS をインストール
 Composer で必要なライブラリをインストール
