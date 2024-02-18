@@ -23,11 +23,13 @@ CSSフレームワーク: Tailwind CSS
 node.js
 Vite
 Tailwind CSS
+
 バックエンド
 Laravel 10
 Blade
 Composer
 MySQL
+
 データベース
 MySQL
 開発環境
@@ -62,6 +64,7 @@ Docker
 権限管理
 管理者
 一般ユーザー
+
 開発手順
 
 Laravel 10 プロジェクトを新規作成
