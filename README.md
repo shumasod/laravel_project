@@ -4,9 +4,10 @@
 
 composer create-project laravel/laravel my-app
 
-## Vue.js プロジェクト新規作成
+## npm インストール
 
-vue create my-app
+npm install
+npm run dev
 
 ## Vite インストール
 
