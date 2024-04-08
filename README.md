@@ -19,12 +19,7 @@ composer create-project laravel/laravel my-app
 
 ## Composer で必要なライブラリをインストール
 
-<<<<<<< HEAD
 composer require laravel/ui
-=======
-#### composer require laravel/ui
-
->>>>>>> cbfc2f7fdbd814d48107a304f888ebcc4df74968
 
 ## データベース構築
 
