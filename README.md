@@ -2,7 +2,7 @@
 
 ## Laravel 10 プロジェクト新規作成
 
-composer create-project laravel/laravel my-app
+composer create-project --prefer-dist laravel/laravel new_repository "10.*"
 
 ## npm インストール
 
