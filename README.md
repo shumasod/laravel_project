@@ -19,8 +19,8 @@ composer create-project laravel/laravel my-app
 
 ## Composer で必要なライブラリをインストール
 
-composer require laravel/ui
-composer require mysql:mysql
+#### composer require laravel/ui
+
 
 ## データベース構築
 
