@@ -6,16 +6,16 @@ composer create-project laravel/laravel my-app
 
 ## npm インストール
 
-npm install
-npm run dev
+#### npm install
+#### npm run dev
 
 ## Vite インストール
 
-npm install -g vite
+#### npm install -g vite
 
 ## Tailwind CSS インストール
 
-npm install -D tailwindcss postcss autoprefixer
+##### npm install -D tailwindcss postcss autoprefixer
 
 ## Composer で必要なライブラリをインストール
 
