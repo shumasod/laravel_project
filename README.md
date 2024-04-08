@@ -20,7 +20,6 @@ npm install -D tailwindcss postcss autoprefixer
 ## Composer で必要なライブラリをインストール
 
 composer require laravel/ui
-composer require mysql:mysql
 
 ## データベース構築
 
