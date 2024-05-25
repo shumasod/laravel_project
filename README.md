@@ -1,50 +1,68 @@
-ここでは、Laravel 10プロジェクトの新規作成とセットアップの手順を説明しています。読みやすくするために、各手順をコメントで明確に分離し、関連する手順をまとめました。
+```markdown
+# Laravel 10 Project
 
-```
-# Laravel 10プロジェクト新規作成
+## Installation
+
+1. **Create a new Laravel 10 project**
+```bash
 composer create-project --prefer-dist laravel/laravel new_repository "10.*"
+```
 
-# 必要なパッケージのインストール
-## npm インストール
+2. **Install npm packages**
+```bash
 npm install
-
-## npm run dev
 npm run dev
+```
 
-## Vite インストール
+3. **Install Vite**
+```bash
 npm install -g vite
+```
 
-## Tailwind CSS インストール
+4. **Install Tailwind CSS**
+```bash
 npm install -D tailwindcss postcss autoprefixer
+```
 
-## Composer で必要なライブラリをインストール
+5. **Install required Laravel packages**
+```bash
 composer require laravel/ui
+```
 
-# データベース構築
+6. **Set up the database**
+```bash
 php artisan migrate
+```
 
-# Laravel 10ルーティング設定
-# routes/web.php
+7. **Configure Laravel 10 routing**
+
+Add the following routes to `routes/web.php`:
+
+```php
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::resource('users', 'UserController');
+```
 
-# Bladeテンプレートファイル作成
-# resources/views/users/index.blade.php
+8. **Create a Blade template file**
+
+Create a file `resources/views/users/index.blade.php` with the following content:
+
+```html
 @extends('layouts.app')
 
 @section('content')
-<h1>顧客一覧</h1>
+<h1>Customer List</h1>
 
 <table class="table">
     <thead>
         <tr>
-            <th>氏名</th>
-            <th>メールアドレス</th>
-            <th>電話番号</th>
-            <th>住所</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Address</th>
         </tr>
     </thead>
     <tbody>
