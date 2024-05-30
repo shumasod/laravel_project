@@ -31,3 +31,15 @@
                         <a href="{{ route('guests.show', $guest->id) }}">View</a>
                         <a href="{{ route('guests.edit', $guest->id) }}">Edit</a>
                         <form action="{{ route('guests.destroy',
+                            $guest->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endsection
+
