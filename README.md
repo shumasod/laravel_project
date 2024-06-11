@@ -3,8 +3,8 @@
 
 ## Installation
 
-1. **Create a new Laravel 10 project**
-```bash
+1. Create a new Laravel 10 project**
+```
 composer create-project --prefer-dist laravel/laravel new_repository "10.*"
 ```
 
