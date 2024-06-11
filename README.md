@@ -9,14 +9,14 @@ composer create-project --prefer-dist laravel/laravel new_repository "10.*"
 ```
 
 2. **Install npm packages**
-```bash
+```
 npm install
 npm run dev
 ```
 
 3. **Install Vite**
-```bash
-npm install -g vite
+```
+npm install vite
 ```
 
 4. **Install Tailwind CSS**
