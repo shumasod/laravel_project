@@ -24,23 +24,27 @@ services:
       - app-network
 
   db:
-    image: mysql:5.7
-    container_name: db
-    restart: unless-stopped
+    container_name: shushu_mysql
+    image: mysql:8.0.30
+    ports:
+      - '3309:3306'
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_PASSWORD: secret
-      MYSQL_USER: user
+      TZ: Asia/Tokyo
+      MYSQL_DATABASE: shushu
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root_password
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./local_db/data:/var/lib/mysql
     networks:
-      - app-network
+      - common_link
 
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  dbdata:
-    driver: local
+  redis: # session storage
+    container_name: redis
+    image: "redis:latest"
+    ports:
+      - "6380:6379"
+    volumes:
+      - "./local_redis/data:/data"
+    networks:
+      - back
