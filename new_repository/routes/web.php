@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::get('/', 'PechiPechiController@index');
+Route::post('/check', 'PechiPechiController@check');
+Route::get('/punishment', 'PechiPechiController@punishment');
 Route::get('/', function () {
     return view('welcome');
 });
