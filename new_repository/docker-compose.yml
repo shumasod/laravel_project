@@ -16,7 +16,7 @@ services:
       - "8000:80"
     volumes:
       - .:/var/www
-      - ./nginx:/etc/nginx/conf.d
+      - ./nginx:/etc/nginx/default.conf/default.conf
     depends_on:
       - app
 
