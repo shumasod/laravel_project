@@ -1,25 +1,24 @@
 version: '3'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/var/www
+      - ./:/var/www
+      - /var/www/vendor
+      - /var/www/node_modules
     depends_on:
       - database
-
   web:
-    image: nginx:latest
+    image: nginx:alpine
     ports:
       - "8000:80"
     volumes:
-      - .:/var/www
-      - ./nginx:/etc/nginx/default.conf/default.conf
+      - ./:/var/www
+      - ./nginx:/etc/nginx/conf.d
     depends_on:
       - app
-
   database:
     image: mysql:8.0
     environment:
@@ -27,6 +26,5 @@ services:
       MYSQL_DATABASE: pechipechi
     volumes:
       - dbdata:/var/lib/mysql
-
 volumes:
   dbdata:
