@@ -79,6 +79,12 @@ Route::get('sitemap.xml', 'SitemapController@index');
 ```bash
 php artisan migrate
 ```
+## データベースにテストデータ流す場合
+
+```bash
+php artisan db:seed
+```
+
 
 ## テンプレート作成
 
