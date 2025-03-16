@@ -1,32 +1,42 @@
-FROM php:8.2.0-fpm-bullseye
+FROM php:8.2-fpm
 
-# 必要なディレクトリを作成
-WORKDIR /workspace
+# システム依存関係をインストール
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libzip-dev
 
-# Nginxの設定ファイルをコピー
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+# PHP拡張機能をインストール
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# プロジェクトルートに docker ディレクトリが存在しない場合
-# COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
-# COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-# COPY ./docker/nginx/default.sandbox.conf /etc/nginx/conf.d/default.sandbox.conf
-# COPY ./docker/nginx/default.stage.conf /etc/nginx/conf.d/default.stage.conf
-# COPY ./docker/nginx/.htpasswd /etc/nginx/.htpasswd
-# COPY ./docker/php/php.deploy.ini /usr/local/etc/php/php.ini
+# Composerのインストール
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# プロジェクトルートに src ディレクトリが存在しない場合
-# COPY ./src /workspace
+# Node.jsとnpmをインストール
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
-# 他のビルド手順
-COPY --from=composer:2.4 /usr/bin/composer /usr/bin/composer
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get update \
-    && apt-get -y install --no-install-recommends \
-        vim \
-        locales \
-        git \
-        unzip \
-        libzip-dev \
-        libicu-dev \
-        libonig-dev \
-        nginx
+# 作業ディレクトリを設定
+WORKDIR /var/www
+
+# Composerのキャッシュディレクトリを作成
+RUN mkdir -p /var/www/.composer && chmod -R 777 /var/www/.composer
+
+# アプリケーションファイルをコピー
+COPY . /var/www
+
+# Composerの依存関係をインストール
+RUN composer install
+
+# npmの依存関係をインストール
+RUN npm install
+
+# エントリーポイントを設定
+CMD ["php-fpm"]
+
+EXPOSE 9000
