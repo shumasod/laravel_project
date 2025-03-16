@@ -6,10 +6,14 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./:/var/www
-      - /var/www/
+      - /var/www/vendor
       - /var/www/node_modules
     depends_on:
       - database
+    environment:
+      - APP_ENV=local
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
+      - PHP_OPCACHE_ENABLE=1
   web:
     image: nginx:alpine
     ports:
@@ -26,5 +30,15 @@ services:
       MYSQL_DATABASE: pechipechi
     volumes:
       - dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+  npm:
+    image: node:20-alpine
+    volumes:
+      - ./:/var/www
+    working_dir: /var/www
+    entrypoint: ['npm']
+    profiles:
+      - npm
 volumes:
   dbdata:
