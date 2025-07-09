@@ -10,7 +10,7 @@
 
 ## 技術スタック
 - HTML/ tailwindcss
-- JavaScript
+- laravel/php
 
 ## 実装の手順
 1. HTML/tailwindcssでベーススタイルを作成
