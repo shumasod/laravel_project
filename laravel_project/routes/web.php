@@ -5,6 +5,15 @@ use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ReservationController;
+use App\Models\Accommodation;
+use App\Models\Room;
+use App\Models\Customer;
+use App\Models\Reservation;
+use App\Models\PricingRule;
+use App\Models\RoomInventory;
+use App\Services\ReservationService;
+use App\Services\PricingService;
+use App\Services\InventoryService;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,3 +23,287 @@ Route::resource('accommodations', AccommodationController::class);
 Route::resource('rooms', RoomController::class);
 Route::resource('customers', CustomerController::class);
 Route::resource('reservations', ReservationController::class);
+
+// ===== テスト用ルート =====
+
+// データベース状態確認
+Route::get('/test-db-status', function () {
+    return response()->json([
+        'accommodations' => Accommodation::count(),
+        'rooms' => Room::count(),
+        'customers' => Customer::count(),
+        'reservations' => Reservation::count(),
+        'pricing_rules' => PricingRule::count(),
+        'room_inventories' => RoomInventory::count(),
+    ]);
+});
+
+// サンプルデータ作成
+Route::get('/test-create-sample-data', function (InventoryService $inventoryService) {
+    try {
+        // 宿泊施設を作成
+        $accommodation = Accommodation::firstOrCreate(
+            ['name' => 'サンプルホテル東京'],
+            [
+                'address' => '東京都渋谷区1-2-3',
+                'phone' => '03-1234-5678',
+                'email' => 'info@sample-hotel.com',
+                'description' => '快適なホテルです'
+            ]
+        );
+
+        // 部屋を作成
+        $room = Room::firstOrCreate(
+            ['accommodation_id' => $accommodation->id, 'room_number' => '101'],
+            [
+                'room_type' => 'standard',
+                'price_per_night' => 10000,
+                'capacity' => 2,
+                'description' => 'スタンダードルーム',
+                'is_available' => true
+            ]
+        );
+
+        // 顧客を作成
+        $customer = Customer::firstOrCreate(
+            ['email' => 'yamada@example.com'],
+            [
+                'name' => '山田太郎',
+                'phone' => '090-1234-5678',
+                'address' => '東京都新宿区',
+                'privacy_consent' => true,
+                'privacy_consent_date' => now(),
+            ]
+        );
+
+        // 在庫を初期化（既に存在する場合はスキップ）
+        $existingInventory = RoomInventory::where('accommodation_id', $accommodation->id)
+            ->where('room_type', 'standard')
+            ->count();
+
+        if ($existingInventory === 0) {
+            $inventoryService->initializeInventory(
+                $accommodation->id,
+                'standard',
+                now()->addDays(1),
+                now()->addDays(30),
+                10
+            );
+        }
+
+        // 料金ルールを作成
+        PricingRule::firstOrCreate(
+            [
+                'accommodation_id' => $accommodation->id,
+                'rule_type' => 'day_of_week',
+                'name' => '週末料金'
+            ],
+            [
+                'room_type' => 'standard',
+                'description' => '金曜日と土曜日は20%増',
+                'conditions' => ['days' => ['friday', 'saturday']],
+                'calculation_type' => 'percentage',
+                'value' => 20,
+                'priority' => 10,
+                'is_active' => true,
+            ]
+        );
+
+        PricingRule::firstOrCreate(
+            [
+                'accommodation_id' => $accommodation->id,
+                'rule_type' => 'consecutive_nights',
+                'name' => '3泊以上割引'
+            ],
+            [
+                'room_type' => 'standard',
+                'description' => '3泊以上で10%オフ',
+                'conditions' => ['min_nights' => 3],
+                'calculation_type' => 'percentage',
+                'value' => 10,
+                'priority' => 5,
+                'is_active' => true,
+            ]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'サンプルデータを作成しました',
+            'data' => [
+                'accommodation' => $accommodation,
+                'room' => $room,
+                'customer' => $customer,
+                'inventory_count' => RoomInventory::where('accommodation_id', $accommodation->id)->count(),
+                'pricing_rules_count' => PricingRule::where('accommodation_id', $accommodation->id)->count(),
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// 予約作成テスト
+Route::get('/test-create-reservation', function (ReservationService $service) {
+    try {
+        $room = Room::first();
+        $customer = Customer::first();
+
+        if (!$room || !$customer) {
+            return response()->json([
+                'error' => 'データが見つかりません。先に /test-create-sample-data を実行してください。'
+            ], 400);
+        }
+
+        $reservation = $service->createReservation([
+            'room_id' => $room->id,
+            'customer_id' => $customer->id,
+            'check_in_date' => now()->addDays(7)->format('Y-m-d'),
+            'check_out_date' => now()->addDays(9)->format('Y-m-d'),
+            'number_of_guests' => 2,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'reservation' => [
+                'id' => $reservation->id,
+                'status' => $reservation->status,
+                'check_in' => $reservation->check_in_date->format('Y-m-d'),
+                'check_out' => $reservation->check_out_date->format('Y-m-d'),
+                'nights' => $reservation->getNumberOfNights(),
+                'total_amount' => '¥' . number_format($reservation->total_amount),
+            ],
+            'pricing_breakdown' => $reservation->price_breakdown,
+            'applied_discounts' => $reservation->applied_discounts,
+            'customer' => $reservation->customer->name,
+            'room' => $reservation->room->room_number,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// 料金計算テスト
+Route::get('/test-pricing', function (PricingService $pricingService) {
+    try {
+        $room = Room::first();
+
+        if (!$room) {
+            return response()->json([
+                'error' => 'データが見つかりません。先に /test-create-sample-data を実行してください。'
+            ], 400);
+        }
+
+        // 次の金曜日から2泊（週末料金が適用されるか確認）
+        $checkIn = \Carbon\Carbon::parse('next friday');
+        $checkOut = $checkIn->copy()->addDays(2);
+
+        $pricing = $pricingService->calculateTotalPrice(
+            $room,
+            $checkIn,
+            $checkOut,
+            2
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'check_in' => $checkIn->format('Y-m-d (l)'),
+            'check_out' => $checkOut->format('Y-m-d (l)'),
+            'nights' => $pricing['nights'],
+            'base_amount' => '¥' . number_format($pricing['base_amount']),
+            'total_amount' => '¥' . number_format($pricing['total_amount']),
+            'breakdown' => $pricing['breakdown'],
+            'applied_discounts' => $pricing['applied_discounts'],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// 在庫状況テスト
+Route::get('/test-inventory', function (InventoryService $inventoryService) {
+    try {
+        $accommodation = Accommodation::first();
+
+        if (!$accommodation) {
+            return response()->json([
+                'error' => 'データが見つかりません。先に /test-create-sample-data を実行してください。'
+            ], 400);
+        }
+
+        $status = $inventoryService->getInventoryStatus(
+            $accommodation->id,
+            'standard',
+            now()->addDays(1),
+            now()->addDays(10)
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'accommodation' => $accommodation->name,
+            'room_type' => 'standard',
+            'inventory' => $status,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// ステータス遷移テスト
+Route::get('/test-status-transition', function () {
+    try {
+        $reservation = Reservation::where('status', 'provisional')->first();
+
+        if (!$reservation) {
+            return response()->json([
+                'error' => '仮予約が見つかりません。先に /test-create-reservation を実行してください。'
+            ], 400);
+        }
+
+        $history = [];
+
+        // 確定
+        $reservation->changeStatus('confirmed', null, '予約確定');
+        $history[] = 'provisional → confirmed';
+
+        // チェックイン
+        $reservation->checkIn();
+        $history[] = 'confirmed → checked_in';
+
+        // チェックアウト
+        $reservation->checkOut();
+        $history[] = 'checked_in → checked_out';
+
+        return response()->json([
+            'status' => 'success',
+            'reservation_id' => $reservation->id,
+            'current_status' => $reservation->status,
+            'actual_check_in_time' => $reservation->actual_check_in_time,
+            'actual_check_out_time' => $reservation->actual_check_out_time,
+            'history' => $history,
+            'status_histories' => $reservation->statusHistories->map(function ($h) {
+                return [
+                    'from' => $h->from_status,
+                    'to' => $h->to_status,
+                    'time' => $h->created_at->format('Y-m-d H:i:s'),
+                ];
+            }),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
