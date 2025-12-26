@@ -144,6 +144,9 @@
                 <li><a href="{{ route('rooms.index') }}">部屋</a></li>
                 <li><a href="{{ route('customers.index') }}">顧客</a></li>
                 <li><a href="{{ route('reservations.index') }}">予約</a></li>
+                <li><a href="{{ route('payments.index') }}">決済</a></li>
+                <li><a href="{{ route('reviews.index') }}">レビュー</a></li>
+                <li><a href="{{ route('reports.dashboard') }}">レポート</a></li>
             </ul>
         </div>
     </nav>
