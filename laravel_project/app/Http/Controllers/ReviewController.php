@@ -6,6 +6,7 @@ use App\Models\Review;
 use App\Models\Reservation;
 use App\Models\Accommodation;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ReviewController extends Controller
 {
@@ -45,7 +46,9 @@ class ReviewController extends Controller
 
         $reviews = $query->paginate(20);
 
-        return view('reviews.index', compact('reviews'));
+        return Inertia::render('Reviews/Index', [
+            'reviews' => $reviews,
+        ]);
     }
 
     /**
@@ -126,7 +129,9 @@ class ReviewController extends Controller
     public function show(Review $review)
     {
         $review->load(['customer', 'accommodation', 'reservation']);
-        return view('reviews.show', compact('review'));
+        return Inertia::render('Reviews/Show', [
+            'review' => $review,
+        ]);
     }
 
     /**
