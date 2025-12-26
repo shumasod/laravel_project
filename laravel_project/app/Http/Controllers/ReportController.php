@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Inertia\Inertia;
 
 class ReportController extends Controller
 {
@@ -23,7 +24,10 @@ class ReportController extends Controller
         $accommodationId = $request->input('accommodation_id');
         $report = $this->reportService->getDashboardReport($accommodationId);
 
-        return view('reports.dashboard', compact('report', 'accommodationId'));
+        return Inertia::render('Reports/Dashboard', [
+            'report' => $report,
+            'accommodationId' => $accommodationId,
+        ]);
     }
 
     /**
@@ -37,7 +41,10 @@ class ReportController extends Controller
 
         $stats = $this->reportService->getReservationStats($accommodationId, $startDate, $endDate);
 
-        return view('reports.reservations', compact('stats', 'accommodationId'));
+        return Inertia::render('Reports/Reservations', [
+            'stats' => $stats,
+            'accommodationId' => $accommodationId,
+        ]);
     }
 
     /**
@@ -51,7 +58,10 @@ class ReportController extends Controller
 
         $report = $this->reportService->getRevenueReport($accommodationId, $startDate, $endDate);
 
-        return view('reports.revenue', compact('report', 'accommodationId'));
+        return Inertia::render('Reports/Revenue', [
+            'report' => $report,
+            'accommodationId' => $accommodationId,
+        ]);
     }
 
     /**
@@ -70,7 +80,10 @@ class ReportController extends Controller
 
         $report = $this->reportService->getOccupancyReport($accommodationId, $startDate, $endDate);
 
-        return view('reports.occupancy', compact('report', 'accommodationId'));
+        return Inertia::render('Reports/Occupancy', [
+            'report' => $report,
+            'accommodationId' => $accommodationId,
+        ]);
     }
 
     /**
@@ -81,7 +94,10 @@ class ReportController extends Controller
         $accommodationId = $request->input('accommodation_id');
         $stats = $this->reportService->getReviewStats($accommodationId);
 
-        return view('reports.reviews', compact('stats', 'accommodationId'));
+        return Inertia::render('Reports/Reviews', [
+            'stats' => $stats,
+            'accommodationId' => $accommodationId,
+        ]);
     }
 
     /**
@@ -92,7 +108,10 @@ class ReportController extends Controller
         $accommodationId = $request->input('accommodation_id');
         $stats = $this->reportService->getCustomerStats($accommodationId);
 
-        return view('reports.customers', compact('stats', 'accommodationId'));
+        return Inertia::render('Reports/Customers', [
+            'stats' => $stats,
+            'accommodationId' => $accommodationId,
+        ]);
     }
 
     /**
