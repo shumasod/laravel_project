@@ -5,15 +5,23 @@ use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReportController;
 use App\Models\Accommodation;
 use App\Models\Room;
 use App\Models\Customer;
 use App\Models\Reservation;
 use App\Models\PricingRule;
 use App\Models\RoomInventory;
+use App\Models\Payment;
+use App\Models\Review;
 use App\Services\ReservationService;
 use App\Services\PricingService;
 use App\Services\InventoryService;
+use App\Services\PaymentService;
+use App\Services\NotificationService;
+use App\Services\ReportService;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +31,26 @@ Route::resource('accommodations', AccommodationController::class);
 Route::resource('rooms', RoomController::class);
 Route::resource('customers', CustomerController::class);
 Route::resource('reservations', ReservationController::class);
+Route::resource('payments', PaymentController::class);
+Route::resource('reviews', ReviewController::class);
+
+// 決済関連のカスタムルート
+Route::post('/payments/{payment}/process', [PaymentController::class, 'process'])->name('payments.process');
+Route::post('/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
+Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+
+// レビュー関連のカスタムルート
+Route::post('/reviews/{review}/helpful', [ReviewController::class, 'addHelpfulVote'])->name('reviews.helpful');
+Route::post('/reviews/{review}/admin-response', [ReviewController::class, 'addAdminResponse'])->name('reviews.admin-response');
+
+// レポート関連のルート
+Route::get('/reports/dashboard', [ReportController::class, 'dashboard'])->name('reports.dashboard');
+Route::get('/reports/reservations', [ReportController::class, 'reservations'])->name('reports.reservations');
+Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+Route::get('/reports/occupancy', [ReportController::class, 'occupancy'])->name('reports.occupancy');
+Route::get('/reports/reviews', [ReportController::class, 'reviews'])->name('reports.reviews');
+Route::get('/reports/customers', [ReportController::class, 'customers'])->name('reports.customers');
+Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
 // ===== テスト用ルート =====
 

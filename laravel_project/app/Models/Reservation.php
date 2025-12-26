@@ -36,6 +36,7 @@ class Reservation extends Model
         'check_in_date',
         'check_out_date',
         'status',
+        'payment_status',
         'actual_check_in_time',
         'actual_check_out_time',
         'total_amount',
@@ -82,6 +83,16 @@ class Reservation extends Model
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by_user_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function review(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Review::class);
     }
 
     /**

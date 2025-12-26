@@ -22,4 +22,29 @@ class Accommodation extends Model
     {
         return $this->hasMany(Room::class);
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * 公開済みレビューの平均評価を取得
+     */
+    public function getAverageRating(): float
+    {
+        return $this->reviews()
+            ->published()
+            ->avg('overall_rating') ?? 0;
+    }
+
+    /**
+     * 公開済みレビュー数を取得
+     */
+    public function getReviewCount(): int
+    {
+        return $this->reviews()
+            ->published()
+            ->count();
+    }
 }
