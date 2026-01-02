@@ -8,6 +8,8 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockTransactionController;
 use App\Models\Accommodation;
 use App\Models\Room;
 use App\Models\Customer;
@@ -33,6 +35,11 @@ Route::resource('customers', CustomerController::class);
 Route::resource('reservations', ReservationController::class);
 Route::resource('payments', PaymentController::class);
 Route::resource('reviews', ReviewController::class);
+
+// ===== 在庫管理システム =====
+Route::resource('products', ProductController::class);
+Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
 
 // 決済関連のカスタムルート
 Route::post('/payments/{payment}/process', [PaymentController::class, 'process'])->name('payments.process');
