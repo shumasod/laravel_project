@@ -52,6 +52,12 @@
         ],
         "test": "vendor/bin/phpunit",
         "test:coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "test:e2e": "./scripts/run-e2e-tests.sh --all",
+        "test:browser": "php artisan dusk",
+        "test:feature": "vendor/bin/phpunit --testsuite Feature",
+        "test:unit": "vendor/bin/phpunit --testsuite Unit",
+        "test:generate": "php artisan test:generate-suite",
+        "test:report": "php artisan test:generate-report",
         "format": "vendor/bin/pint",
         "analyze": "vendor/bin/phpstan analyse"
     },

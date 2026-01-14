@@ -1,0 +1,45 @@
+# Laravel
+/vendor
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/storage/logs
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# IDE
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test Reports
+/storage/test-reports/*.html
+/storage/test-reports/*.json
+/storage/test-reports/*.xml
+/storage/test-reports/coverage
+!/storage/test-reports/.gitkeep
+
+# Dusk
+/tests/Browser/screenshots/*.png
+/tests/Browser/console/*.log
+!/tests/Browser/screenshots/.gitkeep
+!/tests/Browser/console/.gitkeep
+
+# Coverage
+/coverage
+/build
+
+# Build
+/dist
+/build

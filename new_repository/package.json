@@ -8,7 +8,15 @@
         "build": "vite build",
         "preview": "vite preview",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "test:e2e": "./scripts/run-e2e-tests.sh --all",
+        "test:e2e:browser": "./scripts/run-e2e-tests.sh --browser",
+        "test:e2e:feature": "./scripts/run-e2e-tests.sh --feature",
+        "test:e2e:parallel": "./scripts/run-e2e-tests.sh --all --parallel",
+        "test:e2e:coverage": "./scripts/run-e2e-tests.sh --all --coverage",
+        "test:report": "php artisan test:generate-report --format=html && open storage/test-reports/latest.html",
+        "test:generate": "php artisan test:generate-suite --type=all",
+        "test:setup": "chmod +x scripts/*.sh && ./scripts/install-dusk.sh"
     },
     "devDependencies": {
         "axios": "^1.6.4",
