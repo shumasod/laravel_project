@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\FileLock;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -9,9 +10,11 @@ class GenerateTestReport extends Command
 {
     protected $signature = 'test:generate-report
                             {--output= : Output file path}
-                            {--format=html : Report format (html, json, markdown)}';
+                            {--format=html : Report format (html, json, markdown)}
+                            {--wait : Wait for test completion before generating report}
+                            {--timeout=300 : Timeout in seconds for waiting}';
 
-    protected $description = 'Generate test results report';
+    protected $description = 'Generate test results report with synchronization';
 
     protected $testResults = [];
 
@@ -19,11 +22,35 @@ class GenerateTestReport extends Command
     {
         $output = $this->option('output') ?? storage_path('test-reports/latest.html');
         $format = $this->option('format');
+        $shouldWait = $this->option('wait');
+        $timeout = (int) $this->option('timeout');
 
+        // Wait for test execution to complete if requested
+        if ($shouldWait) {
+            $this->info('Waiting for test execution to complete...');
+            if (!FileLock::waitForRelease('test-execution', $timeout)) {
+                $this->error('Timeout waiting for test execution to complete');
+                return 1;
+            }
+        }
+
+        // Use file lock to ensure only one report is generated at a time
+        try {
+            return FileLock::executeWithLock('report-generation', function () use ($output, $format) {
+                return $this->generateReportSync($output, $format);
+            }, 60);
+        } catch (\Exception $e) {
+            $this->error("Failed to generate report: {$e->getMessage()}");
+            return 1;
+        }
+    }
+
+    protected function generateReportSync(string $output, string $format): int
+    {
         $this->info('Generating test report...');
 
-        // Collect test results
-        $this->collectTestResults();
+        // Collect test results with retry mechanism
+        $this->collectTestResultsWithRetry();
 
         // Generate report based on format
         $content = match($format) {
@@ -39,11 +66,43 @@ class GenerateTestReport extends Command
             File::makeDirectory($directory, 0755, true);
         }
 
-        File::put($output, $content);
+        // Write file atomically using temp file
+        $tempFile = $output . '.tmp';
+        File::put($tempFile, $content);
+
+        // Ensure file is fully written
+        if (function_exists('fsync')) {
+            $handle = fopen($tempFile, 'r');
+            if ($handle) {
+                fsync($handle);
+                fclose($handle);
+            }
+        }
+
+        // Rename atomically
+        rename($tempFile, $output);
 
         $this->info("Report generated: {$output}");
 
         return 0;
+    }
+
+    protected function collectTestResultsWithRetry(int $maxRetries = 3): void
+    {
+        $retries = 0;
+
+        while ($retries < $maxRetries) {
+            try {
+                $this->collectTestResults();
+                return;
+            } catch (\Exception $e) {
+                $retries++;
+                if ($retries >= $maxRetries) {
+                    throw $e;
+                }
+                usleep(500000); // Wait 500ms before retry
+            }
+        }
     }
 
     protected function collectTestResults()
