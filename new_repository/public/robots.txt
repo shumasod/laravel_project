@@ -1,2 +1,76 @@
+# robots.txt - AI Crawler Protection
+# 生成AI学習用のクローラーをオプトアウト
+
+# 一般的な検索エンジン（許可）
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# OpenAI GPT クローラー（ブロック）
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+# Anthropic Claude クローラー（ブロック）
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Google Bard/Gemini 拡張クローラー（ブロック）
+User-agent: Google-Extended
+Disallow: /
+
+# Common Crawl（AI学習に使用される）（ブロック）
+User-agent: CCBot
+Disallow: /
+
+# Cohere AIクローラー（ブロック）
+User-agent: cohere-ai
+Disallow: /
+
+# ByteDance (TikTok) クローラー（ブロック）
+User-agent: Bytespider
+Disallow: /
+
+# Apple Intelligence クローラー（ブロック）
+User-agent: Applebot-Extended
+Disallow: /
+
+# Meta AI クローラー（ブロック）
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+# Omgili クローラー（ブロック）
+User-agent: omgili
+Disallow: /
+
+User-agent: omgilibot
+Disallow: /
+
+# Diffbot クローラー（ブロック）
+User-agent: Diffbot
+Disallow: /
+
+# PerplexityBot クローラー（ブロック）
+User-agent: PerplexityBot
+Disallow: /
+
+# YouBot クローラー（ブロック）
+User-agent: YouBot
+Disallow: /
+
+# 既定のルール（その他のクローラー）
 User-agent: *
-Disallow:
+Allow: /
+
+# サイトマップ（ある場合）
+# Sitemap: https://yourdomain.com/sitemap.xml
