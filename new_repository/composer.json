@@ -59,7 +59,8 @@
         "test:generate": "php artisan test:generate-suite",
         "test:report": "php artisan test:generate-report",
         "format": "vendor/bin/pint",
-        "analyze": "vendor/bin/phpstan analyse"
+        "analyze": "vendor/bin/phpstan analyse",
+        "compliance": "php scripts/compliance-check.php"
     },
     "extra": {
         "laravel": {
