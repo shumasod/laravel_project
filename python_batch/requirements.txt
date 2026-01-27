@@ -13,10 +13,10 @@ psycopg2-binary==2.9.9
 beautifulsoup4==4.12.3
 lxml==5.1.0
 selenium==4.17.2
-# SECURITY FIX: Updated to 2.32.3 to fix CVE-2024-35195 and CVE-2024-47081
-requests==2.32.3
-# SECURITY FIX: Updated to 3.9.4 to fix CVE-2024-30251, CVE-2025-69223, and other vulnerabilities
-aiohttp==3.9.4
+# SECURITY FIX: Updated to 2.32.5 to fix CVE-2024-35195, CVE-2024-47081
+requests==2.32.5
+# SECURITY FIX: Updated to 3.12.14 to fix CVE-2024-23334, CVE-2024-23829, CVE-2025-53643, and other vulnerabilities
+aiohttp==3.12.14
 
 # Data Analysis
 pandas==2.2.0
@@ -33,8 +33,8 @@ uvicorn==0.27.0
 # File Processing
 # SECURITY FIX: Updated to 10.3.0 to fix CVE-2024-28219 (High severity)
 Pillow==10.3.0
-# SECURITY FIX: Migrated from PyPDF2 to pypdf (recommended successor) to fix security vulnerabilities
-pypdf==4.3.1
+# SECURITY FIX: Updated to 6.4.1 to fix CVE-2024-***, RAM exhaustion, and infinite loop vulnerabilities
+pypdf==6.4.1
 python-docx==1.1.0
 xlsxwriter==3.1.9
 
