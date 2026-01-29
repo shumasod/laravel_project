@@ -10,6 +10,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockTransactionController;
+use App\Http\Controllers\ElectionController;
 use App\Models\Accommodation;
 use App\Models\Room;
 use App\Models\Customer;
@@ -58,6 +59,43 @@ Route::get('/reports/occupancy', [ReportController::class, 'occupancy'])->name('
 Route::get('/reports/reviews', [ReportController::class, 'reviews'])->name('reports.reviews');
 Route::get('/reports/customers', [ReportController::class, 'customers'])->name('reports.customers');
 Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+// ===== 選挙分析システム =====
+
+// ダッシュボード
+Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
+
+// 選挙関連
+Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
+Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
+Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
+
+// 議席予測
+Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
+Route::get('/elections/{election}/predictions', [ElectionController::class, 'getPredictions'])->name('elections.predictions');
+Route::get('/elections/{election}/validate-accuracy', [ElectionController::class, 'validateAccuracy'])->name('elections.validate-accuracy');
+
+// 選挙比較
+Route::get('/elections-compare', [ElectionController::class, 'compare'])->name('elections.compare');
+
+// 選挙結果登録
+Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
+
+// 世論調査データ
+Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
+Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
+
+// 政党関連
+Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
+Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
+Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])->name('parties.trend');
+
+// 選挙区関連
+Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
+
+// インポート・エクスポート
+Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
+Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
 
 // ===== テスト用ルート =====
 
@@ -534,6 +572,141 @@ Route::get('/test-notification', function (NotificationService $notificationServ
                 'sendPaymentConfirmation' => '支払い確認メール',
                 'sendCheckInReminder' => 'チェックインリマインダー',
             ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// ===== 選挙分析テスト用ルート =====
+
+use App\Models\Election;
+use App\Models\PoliticalParty;
+use App\Models\PollData;
+use App\Services\ElectionDataService;
+use App\Services\ElectionAnalysisService;
+
+// 選挙データ状態確認
+Route::get('/test-election-status', function () {
+    return response()->json([
+        'status' => 'success',
+        'data' => [
+            'elections' => Election::count(),
+            'parties' => PoliticalParty::count(),
+            'poll_data' => PollData::count(),
+            'hr_elections' => Election::where('type', 'house_of_representatives')->count(),
+            'hc_elections' => Election::where('type', 'house_of_councillors')->count(),
+        ],
+    ]);
+});
+
+// 選挙シードデータ作成
+Route::get('/test-seed-elections', function () {
+    try {
+        $seeder = new \Database\Seeders\ElectionSeeder();
+        $seeder->run();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => '選挙データをシードしました',
+            'data' => [
+                'elections' => Election::count(),
+                'parties' => PoliticalParty::count(),
+                'poll_data' => PollData::count(),
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// 議席予測テスト
+Route::get('/test-election-prediction', function (ElectionAnalysisService $analysisService) {
+    try {
+        $election = Election::orderBy('election_date', 'desc')->first();
+
+        if (!$election) {
+            return response()->json([
+                'error' => '選挙データがありません。先に /test-seed-elections を実行してください。'
+            ], 400);
+        }
+
+        $prediction = $analysisService->predictSeats($election->id);
+
+        return response()->json([
+            'status' => 'success',
+            'election' => $election->name,
+            'predictions' => $prediction['predictions'],
+            'total_seats' => $prediction['total_seats'],
+            'methodology' => $prediction['methodology'],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
+// 選挙比較テスト
+Route::get('/test-election-compare', function (ElectionAnalysisService $analysisService) {
+    try {
+        $elections = Election::where('type', 'house_of_representatives')
+            ->orderBy('election_date', 'desc')
+            ->take(2)
+            ->get();
+
+        if ($elections->count() < 2) {
+            return response()->json([
+                'error' => '比較する選挙が2つ以上必要です。'
+            ], 400);
+        }
+
+        $comparison = $analysisService->compareElections(
+            $elections[1]->id,
+            $elections[0]->id
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'comparison' => $comparison,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// 政党トレンド分析テスト
+Route::get('/test-party-trend', function (ElectionAnalysisService $analysisService) {
+    try {
+        $party = PoliticalParty::where('name', '自由民主党')->first();
+
+        if (!$party) {
+            return response()->json([
+                'error' => '政党データがありません。先に /test-seed-elections を実行してください。'
+            ], 400);
+        }
+
+        $trends = $analysisService->analyzePollTrends(
+            $party->id,
+            \Carbon\Carbon::now()->subYears(2),
+            \Carbon\Carbon::now()
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'party' => $party->name,
+            'trends' => $trends,
         ]);
     } catch (\Exception $e) {
         return response()->json([
