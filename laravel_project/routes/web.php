@@ -11,6 +11,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\ElectionController;
+use App\Http\Controllers\TravelController;
 use App\Models\Accommodation;
 use App\Models\Room;
 use App\Models\Customer;
@@ -59,6 +60,30 @@ Route::get('/reports/occupancy', [ReportController::class, 'occupancy'])->name('
 Route::get('/reports/reviews', [ReportController::class, 'reviews'])->name('reports.reviews');
 Route::get('/reports/customers', [ReportController::class, 'customers'])->name('reports.customers');
 Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+// ===== 旅行検索サイト =====
+
+// トップ・検索
+Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
+Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
+Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');
+
+// 施設詳細
+Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->name('travel.show');
+Route::get('/travel/accommodations/{id}/plans', [TravelController::class, 'searchPlans'])->name('travel.plans');
+Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'reviews'])->name('travel.reviews');
+
+// 予約フロー
+Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
+Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
+Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+
+// お気に入り
+Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
+Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
+
+// エリアAPI
+Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
 
 // ===== 選挙分析システム =====
 
