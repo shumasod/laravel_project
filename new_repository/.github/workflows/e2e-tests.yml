@@ -1,0 +1,127 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: [8.3]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        coverage: xdebug
+
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-interaction --no-progress
+
+    - name: Copy environment file
+      run: cp .env .env.testing || cp .env.example .env
+
+    - name: Generate application key
+      run: php artisan key:generate
+
+    - name: Create SQLite database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Run database migrations
+      run: php artisan migrate --force
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+
+    - name: Install Chrome for Dusk
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Install Laravel Dusk
+      run: |
+        composer require --dev laravel/dusk
+        php artisan dusk:install
+        php artisan dusk:chrome-driver --detect
+
+    - name: Start Chrome Driver
+      run: |
+        ./vendor/laravel/dusk/bin/chromedriver-linux &
+        sleep 2
+
+    - name: Serve application
+      run: php artisan serve &
+      env:
+        APP_ENV: testing
+        APP_DEBUG: true
+
+    - name: Wait for application to be ready
+      run: sleep 5
+
+    - name: Run Unit Tests
+      run: vendor/bin/phpunit --testsuite Unit --log-junit storage/test-reports/unit-results.xml
+
+    - name: Run Feature Tests
+      run: vendor/bin/phpunit --testsuite Feature --log-junit storage/test-reports/feature-results.xml
+
+    - name: Run Browser Tests
+      run: php artisan dusk --log-junit storage/test-reports/browser-results.xml
+      if: always()
+
+    - name: Generate Test Report
+      run: |
+        php artisan test:generate-report --format=html --output=storage/test-reports/test-report.html
+        php artisan test:generate-report --format=markdown --output=storage/test-reports/test-report.md
+      if: always()
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-reports
+        path: storage/test-reports/
+
+    - name: Upload Screenshots
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: screenshots
+        path: tests/Browser/screenshots/
+
+    - name: Upload Console Logs
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: console-logs
+        path: tests/Browser/console/
+
+    - name: Comment PR with Test Results
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request' && always()
+      with:
+        script: |
+          const fs = require('fs');
+          const reportPath = 'storage/test-reports/test-report.md';
+
+          if (fs.existsSync(reportPath)) {
+            const report = fs.readFileSync(reportPath, 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## E2E Test Results\n\n${report}`
+            });
+          }

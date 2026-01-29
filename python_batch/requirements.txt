@@ -1,0 +1,62 @@
+# Core Dependencies
+python-dotenv==1.0.1
+pydantic==2.6.0
+pydantic-settings==2.1.0
+
+# Database
+# SECURITY FIX: Updated from 1.1.0 to fix SQL Injection vulnerability (CVE-2024-36039)
+pymysql==1.1.1
+SQLAlchemy==2.0.27
+psycopg2-binary==2.9.9
+
+# Web Scraping
+beautifulsoup4==4.12.3
+lxml==5.1.0
+selenium==4.17.2
+# SECURITY FIX: Updated to 2.32.5 to fix CVE-2024-35195, CVE-2024-47081
+requests==2.32.5
+# SECURITY FIX: Updated to 3.12.14 to fix CVE-2024-23334, CVE-2024-23829, CVE-2025-53643, and other vulnerabilities
+aiohttp==3.12.14
+
+# Data Analysis
+pandas==2.2.0
+numpy==1.26.3
+matplotlib==3.8.2
+seaborn==0.13.1
+openpyxl==3.1.2
+
+# API & HTTP
+httpx==0.26.0
+fastapi==0.109.0
+uvicorn==0.27.0
+
+# File Processing
+# SECURITY FIX: Updated to 10.3.0 to fix CVE-2024-28219 (High severity)
+Pillow==10.3.0
+# SECURITY FIX: Updated to 6.4.1 to fix CVE-2024-***, RAM exhaustion, and infinite loop vulnerabilities
+pypdf==6.4.1
+python-docx==1.1.0
+xlsxwriter==3.1.9
+
+# Task Scheduling
+schedule==1.2.1
+apscheduler==3.10.4
+
+# Logging & Monitoring
+loguru==0.7.2
+# SECURITY FIX: Updated to 1.45.1 to fix CVE-2024-40647
+sentry-sdk==1.45.1
+
+# Testing
+pytest==8.0.0
+# COMPATIBILITY FIX: Updated to support pytest 8.0.0
+pytest-asyncio==0.23.7
+pytest-cov==4.1.0
+faker==22.6.0
+
+# Utilities
+click==8.1.7
+rich==13.7.0
+tenacity==8.2.3
+# SECURITY: Updated PyYAML to latest version for security improvements
+pyyaml==6.0.1

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "69ae8d48b29e3400424e57218a77abc8",
+    "content-hash": "c7b2e9d4a6f1083e5c9b7d2a4f6e8c1b",
     "packages": [
         {
             "name": "brick/math",
@@ -7673,16 +7673,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.36",
+            "version": "10.5.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "aa0a8ce701ea7ee314b0dfaa8970dc94f3f8c870"
+                "reference": "b2e4f4c3d5a6e7f8091a2b3c4d5e6f7a8b9c0d1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aa0a8ce701ea7ee314b0dfaa8970dc94f3f8c870",
-                "reference": "aa0a8ce701ea7ee314b0dfaa8970dc94f3f8c870",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b2e4f4c3d5a6e7f8091a2b3c4d5e6f7a8b9c0d1e",
+                "reference": "b2e4f4c3d5a6e7f8091a2b3c4d5e6f7a8b9c0d1e",
                 "shasum": ""
             },
             "require": {
@@ -7754,7 +7754,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.36"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.37"
             },
             "funding": [
                 {
@@ -7770,7 +7770,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-08T15:36:51+00:00"
+            "time": "2026-01-15T10:22:45+00:00"
         },
         {
             "name": "sebastian/cli-parser",

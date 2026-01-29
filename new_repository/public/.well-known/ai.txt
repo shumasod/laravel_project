@@ -1,0 +1,35 @@
+# AI Training and Crawling Policy
+# This file declares our policy on AI crawling and training usage
+
+# Global policy
+User-agent: *
+Disallow: /
+
+# Specific AI agents
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+# Policy statement
+# このウェブサイトのコンテンツは、AI学習データとしての使用を明示的に禁止します。
+# This website's content is explicitly prohibited from being used as AI training data.
+
+# Contact: shumasod@gmail.com
+# Last updated: 2026-01-19
