@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', '宿泊管理システム')</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -21,10 +24,32 @@
             margin: 0 auto;
             padding: 20px;
         }
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.85);
+        }
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: #fff;
+        }
+        .navbar-dark .navbar-nav .nav-link.active {
+            color: #fff;
+            font-weight: 600;
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .dropdown-item:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .dropdown-item i {
+            width: 20px;
+            margin-right: 8px;
+        }
         nav {
             background-color: #2c3e50;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
+            padding: 0;
+            margin-bottom: 0;
         }
         nav .container {
             display: flex;
@@ -134,20 +159,77 @@
             resize: vertical;
         }
     </style>
+    @stack('styles')
 </head>
 <body>
-    <nav>
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2c3e50;">
         <div class="container">
-            <h1>宿泊管理システム</h1>
-            <ul>
-                <li><a href="{{ route('accommodations.index') }}">宿泊施設</a></li>
-                <li><a href="{{ route('rooms.index') }}">部屋</a></li>
-                <li><a href="{{ route('customers.index') }}">顧客</a></li>
-                <li><a href="{{ route('reservations.index') }}">予約</a></li>
-                <li><a href="{{ route('payments.index') }}">決済</a></li>
-                <li><a href="{{ route('reviews.index') }}">レビュー</a></li>
-                <li><a href="{{ route('reports.dashboard') }}">レポート</a></li>
-            </ul>
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-building me-2"></i>総合管理システム
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <!-- 旅行検索 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('travel*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-airplane me-1"></i>旅行検索
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('travel.index') }}"><i class="bi bi-house-door"></i>トップページ</a></li>
+                            <li><a class="dropdown-item" href="{{ route('travel.search') }}"><i class="bi bi-search"></i>宿泊施設検索</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('travel.search', ['type' => 'hotel']) }}"><i class="bi bi-building"></i>ホテル</a></li>
+                            <li><a class="dropdown-item" href="{{ route('travel.search', ['type' => 'ryokan']) }}"><i class="bi bi-house"></i>旅館</a></li>
+                            <li><a class="dropdown-item" href="{{ route('travel.search', ['type' => 'pension']) }}"><i class="bi bi-tree"></i>ペンション</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- 選挙分析 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('elections*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-bar-chart me-1"></i>選挙分析
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('elections.dashboard') }}"><i class="bi bi-speedometer2"></i>ダッシュボード</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('elections.dashboard', ['type' => 'hr']) }}"><i class="bi bi-bank"></i>衆議院選挙</a></li>
+                            <li><a class="dropdown-item" href="{{ route('elections.dashboard', ['type' => 'hc']) }}"><i class="bi bi-bank2"></i>参議院選挙</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('elections.index') }}"><i class="bi bi-people"></i>政党一覧</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- 宿泊管理 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('accommodations*') || request()->is('rooms*') || request()->is('reservations*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-calendar-check me-1"></i>宿泊管理
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('accommodations.index') }}"><i class="bi bi-building"></i>宿泊施設</a></li>
+                            <li><a class="dropdown-item" href="{{ route('rooms.index') }}"><i class="bi bi-door-open"></i>部屋</a></li>
+                            <li><a class="dropdown-item" href="{{ route('reservations.index') }}"><i class="bi bi-calendar3"></i>予約</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('customers.index') }}"><i class="bi bi-person"></i>顧客</a></li>
+                            <li><a class="dropdown-item" href="{{ route('reviews.index') }}"><i class="bi bi-star"></i>レビュー</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- 経理・レポート -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('payments*') || request()->is('reports*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-graph-up me-1"></i>経理・レポート
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('payments.index') }}"><i class="bi bi-credit-card"></i>決済</a></li>
+                            <li><a class="dropdown-item" href="{{ route('reports.dashboard') }}"><i class="bi bi-clipboard-data"></i>レポート</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -160,5 +242,8 @@
 
         @yield('content')
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>
