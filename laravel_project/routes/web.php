@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\TravelController;
+use App\Http\Controllers\EventController;
 use App\Models\Accommodation;
 use App\Models\Room;
 use App\Models\Customer;
@@ -84,6 +85,24 @@ Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 're
 
 // エリアAPI
 Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
+
+// ===== イベント検索システム =====
+
+// トップ・検索
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
+Route::get('/events/calendar', [EventController::class, 'calendar'])->name('events.calendar');
+
+// イベント詳細
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+
+// お気に入り
+Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
+Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
+Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
+
+// API
+Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('events.api.search');
 
 // ===== 選挙分析システム =====
 

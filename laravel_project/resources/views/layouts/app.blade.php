@@ -188,6 +188,22 @@
                         </ul>
                     </li>
 
+                    <!-- イベント検索 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('events*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-calendar-event me-1"></i>イベント検索
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('events.index') }}"><i class="bi bi-house-door"></i>トップページ</a></li>
+                            <li><a class="dropdown-item" href="{{ route('events.search', ['region' => '東京']) }}"><i class="bi bi-search"></i>イベント検索</a></li>
+                            <li><a class="dropdown-item" href="{{ route('events.calendar', ['region' => '東京']) }}"><i class="bi bi-calendar3"></i>カレンダー</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('events.search', ['region' => '東京', 'category' => 'festival']) }}"><i class="bi bi-flag"></i>祭り・フェス</a></li>
+                            <li><a class="dropdown-item" href="{{ route('events.search', ['region' => '東京', 'category' => 'concert']) }}"><i class="bi bi-music-note-beamed"></i>コンサート</a></li>
+                            <li><a class="dropdown-item" href="{{ route('events.search', ['region' => '東京', 'category' => 'fireworks']) }}"><i class="bi bi-stars"></i>花火大会</a></li>
+                        </ul>
+                    </li>
+
                     <!-- 選挙分析 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('elections*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
