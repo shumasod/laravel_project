@@ -1,8 +1,8 @@
 {
-    "name": "shuma/laravel_project",
+    "name": "shu/laravel_project",
     "autoload": {
         "psr-4": {
-            "Shuma\\LaravelProject\\": "src/"
+            "Shu\\LaravelProject\\": "src/"
         }
     },
     "authors": [
