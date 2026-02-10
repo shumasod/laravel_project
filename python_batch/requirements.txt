@@ -56,7 +56,7 @@ faker==22.6.0
 
 # Utilities
 click==8.1.7
-rich==13.7.0
+rich==14.3.2
 tenacity==8.2.3
 # SECURITY: Updated PyYAML to latest version for security improvements
 pyyaml==6.0.1
