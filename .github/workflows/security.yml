@@ -1,0 +1,77 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Run weekly on Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  composer-audit:
+    name: Composer Security Audit
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: [laravel_project, new_repository]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Run Composer Audit
+        working-directory: ${{ matrix.directory }}
+        run: composer audit --format=plain
+        continue-on-error: true
+
+  npm-audit:
+    name: NPM Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run NPM Audit
+        working-directory: laravel_project
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+  pip-audit:
+    name: Python Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit
+        working-directory: python_batch
+        run: pip-audit -r requirements.txt
+        continue-on-error: true
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [composer-audit, npm-audit, pip-audit]
+    if: always()
+    steps:
+      - name: Check Results
+        run: |
+          echo "Security scan completed."
+          echo "Please review any vulnerabilities found in the individual job logs."

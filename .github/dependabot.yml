@@ -1,0 +1,53 @@
+version: 2
+updates:
+  # Laravel project - Composer dependencies
+  - package-ecosystem: "composer"
+    directory: "/laravel_project"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Laravel project - npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/laravel_project"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # New repository - Composer dependencies
+  - package-ecosystem: "composer"
+    directory: "/new_repository"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Python batch - pip dependencies
+  - package-ecosystem: "pip"
+    directory: "/python_batch"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
