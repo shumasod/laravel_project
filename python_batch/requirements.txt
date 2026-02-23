@@ -48,7 +48,7 @@ loguru==0.7.3
 sentry-sdk==1.45.1
 
 # Testing
-pytest==8.0.0
+pytest==9.0.2
 # COMPATIBILITY FIX: Updated to support pytest 8.0.0
 pytest-asyncio==0.23.7
 pytest-cov==7.0.0
