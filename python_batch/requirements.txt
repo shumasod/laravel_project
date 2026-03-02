@@ -22,7 +22,7 @@ aiohttp==3.13.3
 pandas==3.0.0
 numpy==2.4.2
 matplotlib==3.10.8
-seaborn==0.13.1
+seaborn==0.13.2
 openpyxl==3.1.2
 
 # API & HTTP
