@@ -35,7 +35,7 @@ uvicorn==0.40.0
 Pillow==12.1.1
 # SECURITY FIX: Updated to 6.4.2 to fix infinite loop, malformed startxref, and missing /Root object vulnerabilities
 pypdf==6.7.5
-python-docx==1.1.0
+python-docx==1.2.0
 xlsxwriter==3.2.9
 
 # Task Scheduling
