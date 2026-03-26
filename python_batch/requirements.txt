@@ -45,7 +45,7 @@ apscheduler==3.11.2
 # Logging & Monitoring
 loguru==0.7.3
 # SECURITY FIX: Updated to 1.45.1 to fix CVE-2024-40647
-sentry-sdk==2.54.0
+sentry-sdk==2.55.0
 
 # Testing
 pytest==9.0.2
