@@ -19,15 +19,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// 顧客API
-Route::prefix('customers')->group(function () {
+// 顧客API (認証必須)
+Route::middleware('auth:sanctum')->prefix('customers')->group(function () {
     // 顧客一覧取得
     Route::get('/', function (Request $request) {
+        $validated = $request->validate([
+            'search'   => 'nullable|string|max:100',
+            'status'   => 'nullable|in:active,inactive,pending,suspended',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
         $query = Customer::query();
 
         // 検索フィルター
-        if ($request->has('search')) {
-            $search = $request->input('search');
+        if (!empty($validated['search'])) {
+            $search = $validated['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
@@ -35,12 +41,12 @@ Route::prefix('customers')->group(function () {
         }
 
         // ステータスフィルター
-        if ($request->has('status') && $request->input('status')) {
-            $query->where('status', $request->input('status'));
+        if (!empty($validated['status'])) {
+            $query->where('status', $validated['status']);
         }
 
-        // ページネーション
-        $perPage = $request->input('per_page', 50);
+        // ページネーション (上限100件)
+        $perPage = $validated['per_page'] ?? 50;
         $customers = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         return response()->json([
