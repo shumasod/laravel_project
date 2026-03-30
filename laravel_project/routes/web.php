@@ -32,26 +32,29 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('accommodations', AccommodationController::class);
-Route::resource('rooms', RoomController::class);
-Route::resource('customers', CustomerController::class);
-Route::resource('reservations', ReservationController::class);
-Route::resource('payments', PaymentController::class);
-Route::resource('reviews', ReviewController::class);
+// 管理系リソース (認証必須)
+Route::middleware('auth')->group(function () {
+    Route::resource('accommodations', AccommodationController::class);
+    Route::resource('rooms', RoomController::class);
+    Route::resource('customers', CustomerController::class);
+    Route::resource('reservations', ReservationController::class);
+    Route::resource('payments', PaymentController::class);
+    Route::resource('reviews', ReviewController::class);
 
-// ===== 在庫管理システム =====
-Route::resource('products', ProductController::class);
-Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
-Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    // ===== 在庫管理システム =====
+    Route::resource('products', ProductController::class);
+    Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
 
-// 決済関連のカスタムルート
-Route::post('/payments/{payment}/process', [PaymentController::class, 'process'])->name('payments.process');
-Route::post('/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
-Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+    // 決済関連のカスタムルート
+    Route::post('/payments/{payment}/process', [PaymentController::class, 'process'])->name('payments.process');
+    Route::post('/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
+    Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
 
-// レビュー関連のカスタムルート
-Route::post('/reviews/{review}/helpful', [ReviewController::class, 'addHelpfulVote'])->name('reviews.helpful');
-Route::post('/reviews/{review}/admin-response', [ReviewController::class, 'addAdminResponse'])->name('reviews.admin-response');
+    // レビュー関連のカスタムルート
+    Route::post('/reviews/{review}/helpful', [ReviewController::class, 'addHelpfulVote'])->name('reviews.helpful');
+    Route::post('/reviews/{review}/admin-response', [ReviewController::class, 'addAdminResponse'])->name('reviews.admin-response');
+});
 
 // レポート関連のルート (認証必須)
 Route::middleware('auth')->group(function () {
