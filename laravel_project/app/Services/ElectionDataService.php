@@ -77,7 +77,16 @@ class ElectionDataService
             $handle = fopen($filePath, 'r');
             $header = fgetcsv($handle);
 
+            if ($header === false) {
+                throw new \Exception("CSVファイルのヘッダーが読み取れません");
+            }
+
             while (($row = fgetcsv($handle)) !== false) {
+                if (count($row) !== count($header)) {
+                    $errors[] = "行 " . ($imported + 1) . ": 列数が不正です";
+                    continue;
+                }
+
                 $data = array_combine($header, $row);
 
                 // 選挙結果データをインポート
@@ -123,7 +132,16 @@ class ElectionDataService
             $handle = fopen($filePath, 'r');
             $header = fgetcsv($handle);
 
+            if ($header === false) {
+                throw new \Exception("CSVファイルのヘッダーが読み取れません");
+            }
+
             while (($row = fgetcsv($handle)) !== false) {
+                if (count($row) !== count($header)) {
+                    $errors[] = "行 " . ($imported + 1) . ": 列数が不正です";
+                    continue;
+                }
+
                 $data = array_combine($header, $row);
 
                 $party = PoliticalParty::where('name', $data['party_name'])->first();
