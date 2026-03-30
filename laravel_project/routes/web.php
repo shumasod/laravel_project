@@ -53,14 +53,16 @@ Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])-
 Route::post('/reviews/{review}/helpful', [ReviewController::class, 'addHelpfulVote'])->name('reviews.helpful');
 Route::post('/reviews/{review}/admin-response', [ReviewController::class, 'addAdminResponse'])->name('reviews.admin-response');
 
-// レポート関連のルート
-Route::get('/reports/dashboard', [ReportController::class, 'dashboard'])->name('reports.dashboard');
-Route::get('/reports/reservations', [ReportController::class, 'reservations'])->name('reports.reservations');
-Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
-Route::get('/reports/occupancy', [ReportController::class, 'occupancy'])->name('reports.occupancy');
-Route::get('/reports/reviews', [ReportController::class, 'reviews'])->name('reports.reviews');
-Route::get('/reports/customers', [ReportController::class, 'customers'])->name('reports.customers');
-Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+// レポート関連のルート (認証必須)
+Route::middleware('auth')->group(function () {
+    Route::get('/reports/dashboard', [ReportController::class, 'dashboard'])->name('reports.dashboard');
+    Route::get('/reports/reservations', [ReportController::class, 'reservations'])->name('reports.reservations');
+    Route::get('/reports/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    Route::get('/reports/occupancy', [ReportController::class, 'occupancy'])->name('reports.occupancy');
+    Route::get('/reports/reviews', [ReportController::class, 'reviews'])->name('reports.reviews');
+    Route::get('/reports/customers', [ReportController::class, 'customers'])->name('reports.customers');
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+});
 
 // ===== 旅行検索サイト =====
 

@@ -21,6 +21,10 @@ class ReportController extends Controller
      */
     public function dashboard(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'nullable|integer|exists:accommodations,id',
+        ]);
+
         $accommodationId = $request->input('accommodation_id');
         $report = $this->reportService->getDashboardReport($accommodationId);
 
@@ -35,6 +39,12 @@ class ReportController extends Controller
      */
     public function reservations(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'nullable|integer|exists:accommodations,id',
+            'start_date'       => 'nullable|date',
+            'end_date'         => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $accommodationId = $request->input('accommodation_id');
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : null;
         $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : null;
@@ -52,6 +62,12 @@ class ReportController extends Controller
      */
     public function revenue(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'nullable|integer|exists:accommodations,id',
+            'start_date'       => 'nullable|date',
+            'end_date'         => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $accommodationId = $request->input('accommodation_id');
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : null;
         $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : null;
@@ -69,12 +85,13 @@ class ReportController extends Controller
      */
     public function occupancy(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'required|integer|exists:accommodations,id',
+            'start_date'       => 'nullable|date',
+            'end_date'         => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $accommodationId = $request->input('accommodation_id');
-
-        if (!$accommodationId) {
-            return redirect()->back()->withErrors(['error' => '宿泊施設を選択してください。']);
-        }
-
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : null;
         $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : null;
 
@@ -91,6 +108,10 @@ class ReportController extends Controller
      */
     public function reviews(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'nullable|integer|exists:accommodations,id',
+        ]);
+
         $accommodationId = $request->input('accommodation_id');
         $stats = $this->reportService->getReviewStats($accommodationId);
 
@@ -105,6 +126,10 @@ class ReportController extends Controller
      */
     public function customers(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'nullable|integer|exists:accommodations,id',
+        ]);
+
         $accommodationId = $request->input('accommodation_id');
         $stats = $this->reportService->getCustomerStats($accommodationId);
 
@@ -119,6 +144,11 @@ class ReportController extends Controller
      */
     public function export(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'nullable|integer|exists:accommodations,id',
+            'type'             => 'nullable|in:dashboard,reservations,revenue,occupancy,reviews,customers',
+        ]);
+
         $type = $request->input('type', 'dashboard');
         $accommodationId = $request->input('accommodation_id');
 
