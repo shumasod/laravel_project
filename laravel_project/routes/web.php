@@ -141,7 +141,10 @@ Route::get('/election-districts', [ElectionController::class, 'districts'])->nam
 Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
 Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
 
-// ===== テスト用ルート =====
+// ===== テスト用ルート (local環境のみ) =====
+if (!app()->environment('local', 'testing')) {
+    return;
+}
 
 // データベース状態確認
 Route::get('/test-db-status', function () {
