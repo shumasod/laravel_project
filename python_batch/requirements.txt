@@ -27,7 +27,7 @@ openpyxl==3.1.5
 
 # API & HTTP
 httpx==0.28.1
-fastapi==0.135.1
+fastapi==0.135.2
 uvicorn==0.42.0
 
 # File Processing
