@@ -43,6 +43,8 @@ Route::middleware('auth')->group(function () {
 
     // ===== 在庫管理システム =====
     Route::resource('products', ProductController::class);
+    Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
+    Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
     Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
     Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
 
