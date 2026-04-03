@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /**
  * 商品管理コントローラー
@@ -129,5 +130,39 @@ class ProductController extends Controller
         return redirect()
             ->route('products.index')
             ->with('success', '商品を削除しました');
+    }
+
+    /**
+     * QRコード画像を返す（SVG形式）
+     * QRコードにはSKUと商品詳細URLをエンコード
+     */
+    public function qrcode(Product $product)
+    {
+        $url = route('products.show', $product);
+        $svg = QrCode::format('svg')
+            ->size(200)
+            ->errorCorrection('M')
+            ->generate($url);
+
+        return response($svg, 200)
+            ->header('Content-Type', 'image/svg+xml');
+    }
+
+    /**
+     * QRコードをPNGとしてダウンロード
+     */
+    public function qrcodeDownload(Product $product)
+    {
+        $url = route('products.show', $product);
+        $png = QrCode::format('png')
+            ->size(300)
+            ->errorCorrection('M')
+            ->generate($url);
+
+        $filename = 'qrcode_' . $product->sku . '.png';
+
+        return response($png, 200)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }

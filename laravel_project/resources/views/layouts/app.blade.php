@@ -219,6 +219,21 @@
                         </ul>
                     </li>
 
+                    <!-- 在庫管理 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('products*') || request()->is('stock-transactions*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-box-seam me-1"></i>在庫管理
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('products.index') }}"><i class="bi bi-list-ul"></i>商品一覧</a></li>
+                            <li><a class="dropdown-item" href="{{ route('products.create') }}"><i class="bi bi-plus-circle"></i>商品登録</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('stock-transactions.index') }}"><i class="bi bi-clock-history"></i>在庫履歴</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('products.index', ['alert_only' => 1]) }}"><i class="bi bi-exclamation-triangle text-warning"></i>要発注アラート</a></li>
+                        </ul>
+                    </li>
+
                     <!-- 宿泊管理 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('accommodations*') || request()->is('rooms*') || request()->is('reservations*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
