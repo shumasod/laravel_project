@@ -19,7 +19,7 @@ requests==2.33.1
 aiohttp==3.13.5
 
 # Data Analysis
-pandas==3.0.1
+pandas==3.0.2
 numpy==2.4.4
 matplotlib==3.10.8
 seaborn==0.13.2
