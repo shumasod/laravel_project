@@ -32,7 +32,7 @@ uvicorn==0.42.0
 
 # File Processing
 # SECURITY FIX: Updated to 10.3.0 to fix CVE-2024-28219 (High severity)
-Pillow==12.1.1
+Pillow==12.2.0
 # SECURITY FIX: Updated to 6.4.2 to fix infinite loop, malformed startxref, and missing /Root object vulnerabilities
 pypdf==6.9.2
 python-docx==1.2.0
