@@ -61,6 +61,30 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Compliance
+
+This project includes comprehensive compliance features:
+
+### License Management
+- MIT License for the project
+- All dependencies use compatible OSS licenses
+- See [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md) for details
+
+### AI Crawler Protection
+- `robots.txt` blocks major AI crawlers (GPTBot, Claude-Web, etc.)
+- `.well-known/ai.txt` declares opt-out from AI training
+- Code is not available for AI learning without explicit permission
+
+### Compliance Checking
+Run the compliance check:
+```bash
+composer compliance
+# or
+php scripts/compliance-check.php
+```
+
+For detailed compliance policies, see [COMPLIANCE.md](./COMPLIANCE.md).
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

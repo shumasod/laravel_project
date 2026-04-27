@@ -36,6 +36,10 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
+        $request->validate([
+            'reservation_id' => 'nullable|integer|exists:reservations,id',
+        ]);
+
         $reservationId = $request->input('reservation_id');
         $reservation = $reservationId ? Reservation::findOrFail($reservationId) : null;
 

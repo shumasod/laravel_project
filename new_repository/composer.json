@@ -6,23 +6,23 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "guzzlehttp/guzzle": "^7.2",
+        "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.8",
-        "league/commonmark": "^2.7.0",
+        "laravel/tinker": "^2.9",
+        "league/commonmark": "^2.5",
         "symfony/http-foundation": "^7.3.7"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.9.1",
-        "laravel/pint": "^1.0",
-        "laravel/sail": "^1.18",
-        "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^10.1",
-        "spatie/laravel-ignition": "^2.0",
-        "pestphp/pest": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0"
+        "fakerphp/faker": "^1.23",
+        "laravel/pint": "^1.13",
+        "laravel/sail": "^1.27",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.1",
+        "phpunit/phpunit": "^10.5.37",
+        "spatie/laravel-ignition": "^2.4",
+        "pestphp/pest": "^2.33",
+        "pestphp/pest-plugin-laravel": "^2.2"
     },
     "autoload": {
         "psr-4": {
@@ -52,8 +52,15 @@
         ],
         "test": "vendor/bin/phpunit",
         "test:coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "test:e2e": "./scripts/run-e2e-tests.sh --all",
+        "test:browser": "php artisan dusk",
+        "test:feature": "vendor/bin/phpunit --testsuite Feature",
+        "test:unit": "vendor/bin/phpunit --testsuite Unit",
+        "test:generate": "php artisan test:generate-suite",
+        "test:report": "php artisan test:generate-report",
         "format": "vendor/bin/pint",
-        "analyze": "vendor/bin/phpstan analyse"
+        "analyze": "vendor/bin/phpstan analyse",
+        "compliance": "php scripts/compliance-check.php"
     },
     "extra": {
         "laravel": {
