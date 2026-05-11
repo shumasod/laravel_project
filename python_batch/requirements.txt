@@ -1,7 +1,7 @@
 # Core Dependencies
 python-dotenv==1.2.2
 pydantic==2.13.3
-pydantic-settings==2.14.0
+pydantic-settings==2.14.1
 
 # Database
 # SECURITY FIX: Updated from 1.1.0 to fix SQL Injection vulnerability (CVE-2024-36039)
