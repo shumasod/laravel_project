@@ -27,19 +27,19 @@
         "concurrently": "^9.0.1",
         "eslint": "^10.4.0",
         "laravel-vite-plugin": "^3.0.0",
-        "postcss": "^8.5.14",
+        "postcss": "^8.5.15",
         "prettier": "^3.8.3",
         "rollup-plugin-visualizer": "^7.0.1",
-        "sass": "^1.99.0",
+        "sass": "^1.100.0",
         "tailwindcss": "^4.3.0",
-        "terser": "^5.47.1",
+        "terser": "^5.48.0",
         "typescript": "^6.0.3",
-        "vite": "^8.0.13",
+        "vite": "^8.0.14",
         "vite-plugin-compression": "^0.5.1",
-        "vitest": "^4.1.6"
+        "vitest": "^4.1.7"
     },
     "dependencies": {
-        "@inertiajs/react": "^3.1.1",
+        "@inertiajs/react": "^3.2.0",
         "react": "^19.2.5",
         "react-dom": "^19.2.6"
     },
