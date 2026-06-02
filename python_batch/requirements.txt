@@ -28,7 +28,7 @@ openpyxl==3.1.5
 # API & HTTP
 httpx==0.28.1
 fastapi==0.136.3
-uvicorn==0.47.0
+uvicorn==0.48.0
 
 # File Processing
 # SECURITY FIX: Updated to 10.3.0 to fix CVE-2024-28219 (High severity)
