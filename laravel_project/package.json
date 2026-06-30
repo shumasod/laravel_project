@@ -39,7 +39,7 @@
         "vitest": "^4.1.9"
     },
     "dependencies": {
-        "@inertiajs/react": "^3.4.0",
+        "@inertiajs/react": "^3.5.0",
         "react": "^19.2.7",
         "react-dom": "^19.2.7"
     },
