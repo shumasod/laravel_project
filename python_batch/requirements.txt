@@ -40,7 +40,7 @@ xlsxwriter==3.2.9
 
 # Task Scheduling
 schedule==1.2.2
-apscheduler==3.11.2
+apscheduler==3.11.3
 
 # Logging & Monitoring
 loguru==0.7.3
