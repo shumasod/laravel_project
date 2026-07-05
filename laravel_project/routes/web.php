@@ -81,14 +81,14 @@ Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->na
 Route::get('/travel/accommodations/{id}/plans', [TravelController::class, 'searchPlans'])->name('travel.plans');
 Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'reviews'])->name('travel.reviews');
 
-// 予約フロー
-Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
-Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
-Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
-
-// お気に入り
-Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
-Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
+// 予約フロー・お気に入り (認証必須)
+Route::middleware('auth')->group(function () {
+    Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
+    Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
+    Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+    Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
+    Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
+});
 
 // エリアAPI
 Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
