@@ -148,6 +148,10 @@ class ReviewController extends Controller
      */
     public function update(Request $request, Review $review)
     {
+        if ($review->customer_id !== auth()->id()) {
+            abort(403, '自分のレビューのみ編集できます。');
+        }
+
         $validated = $request->validate([
             'overall_rating' => 'required|integer|min:1|max:5',
             'cleanliness_rating' => 'nullable|integer|min:1|max:5',
@@ -170,6 +174,10 @@ class ReviewController extends Controller
      */
     public function destroy(Review $review)
     {
+        if ($review->customer_id !== auth()->id()) {
+            abort(403, '自分のレビューのみ削除できます。');
+        }
+
         $review->delete();
 
         return redirect()->route('reviews.index')
@@ -181,8 +189,10 @@ class ReviewController extends Controller
      */
     public function addHelpfulVote(Review $review, Request $request)
     {
-        $customerId = $request->input('customer_id'); // 実際は認証から取得
-        $customer = \App\Models\Customer::findOrFail($customerId);
+        $customer = auth()->user();
+        if (!$customer) {
+            return redirect()->back()->withErrors(['error' => 'ログインが必要です。']);
+        }
 
         $review->addHelpfulVote($customer);
 
