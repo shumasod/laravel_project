@@ -17,12 +17,18 @@ class Customer extends Model
         'email',
         'phone',
         'address',
-        'last_stay_date',
-        'total_stays',
-        'total_spent',
         'privacy_consent',
         'privacy_consent_date',
         'marketing_consent',
+    ];
+
+    // total_stays, total_spent は updateStayHistory() 経由でのみ更新
+    // deletion_requested, deletion_requested_at は requestDeletion() 経由でのみ更新
+    // last_stay_date は内部処理でのみ更新
+    protected $guarded = [
+        'total_stays',
+        'total_spent',
+        'last_stay_date',
         'deletion_requested',
         'deletion_requested_at',
     ];
