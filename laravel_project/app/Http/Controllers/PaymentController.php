@@ -62,9 +62,10 @@ class PaymentController extends Controller
         try {
             $payment = $this->paymentService->createPayment($validated);
 
-            // 決済処理を実行
-            if ($request->has('process_now') && $request->input('process_now')) {
-                $this->paymentService->processPayment($payment, $request->all());
+            // 決済処理を実行（ホワイトリストのフィールドのみ渡す）
+            if ($request->boolean('process_now')) {
+                $gatewayData = $request->only(['stripe_token', 'payment_method_id', 'card_token']);
+                $this->paymentService->processPayment($payment, $gatewayData);
             }
 
             return redirect()->route('payments.show', $payment)
