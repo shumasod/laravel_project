@@ -133,16 +133,23 @@ class EventController extends Controller
     public function addFavorite(Request $request)
     {
         $request->validate([
-            'event_id' => 'required|string',
-            'event_data' => 'required|array',
+            'event_id' => 'required|string|max:100',
         ]);
+
+        $eventId = $request->input('event_id');
+
+        // サーバー側でイベントデータを取得し、クライアント供給データは使用しない
+        $event = $this->eventService->findById($eventId);
+        if (!$event) {
+            return response()->json(['success' => false, 'message' => 'イベントが見つかりません'], 404);
+        }
 
         $userId = auth()->id() ?? session()->getId();
         $favorites = Cache::get("event_favorites_{$userId}", []);
 
-        $favorites[$request->event_id] = $request->event_data;
+        $favorites[$eventId] = $event;
 
-        Cache::put("event_favorites_{$userId}", $favorites, 86400 * 30); // 30日間保存
+        Cache::put("event_favorites_{$userId}", $favorites, 86400 * 30);
 
         return response()->json(['success' => true, 'message' => 'お気に入りに追加しました']);
     }

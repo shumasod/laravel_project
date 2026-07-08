@@ -434,6 +434,22 @@ class EventSearchService
     }
 
     /**
+     * IDでイベントを検索（信頼できるサーバー側データソースから取得）
+     */
+    public function findById(string $id): ?array
+    {
+        $sampleRegions = ['東京', '大阪', '京都', '北海道', '沖縄', '福岡', '神奈川', '愛知'];
+        foreach ($sampleRegions as $region) {
+            foreach ($this->searchEvents($region) as $event) {
+                if (($event['id'] ?? null) === $id) {
+                    return $event;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * 今月の注目イベントを取得
      */
     public function getFeaturedEvents(): array
