@@ -165,4 +165,10 @@ class ProductController extends Controller
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
+
+    public function qrcodeBatch()
+    {
+        $products = Product::orderBy('name')->get();
+        return view('products.qrcode-batch', compact('products'));
+    }
 }
