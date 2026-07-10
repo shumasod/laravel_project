@@ -29,12 +29,20 @@ class Reservation extends Model
         self::STATUS_NO_SHOW => [],
     ];
 
+    // 予約作成時にユーザー入力から受け取る基本項目のみ
     protected $fillable = [
         'customer_id',
         'room_id',
         'number_of_guests',
         'check_in_date',
         'check_out_date',
+        'notes',
+        'created_by_user_id',
+        'updated_by_user_id',
+    ];
+
+    // ステータス・金額・時刻系はサービス層・ステートマシンでのみ設定する
+    protected $guarded = [
         'status',
         'payment_status',
         'actual_check_in_time',
@@ -44,9 +52,6 @@ class Reservation extends Model
         'price_breakdown',
         'cancelled_at',
         'cancellation_reason',
-        'notes',
-        'created_by_user_id',
-        'updated_by_user_id',
     ];
 
     protected $casts = [
