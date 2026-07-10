@@ -6,17 +6,22 @@ use App\Models\Reservation;
 use App\Models\Customer;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ReservationController extends Controller
 {
     public function index()
     {
+        Gate::authorize('admin');
+
         $reservations = Reservation::with('customer', 'room.accommodation')->paginate(10);
         return view('reservations.index', compact('reservations'));
     }
 
     public function create()
     {
+        Gate::authorize('admin');
+
         $customers = Customer::all();
         $rooms = Room::where('is_available', true)->with('accommodation')->get();
         return view('reservations.create', compact('customers', 'rooms'));
@@ -42,12 +47,16 @@ class ReservationController extends Controller
 
     public function show(Reservation $reservation)
     {
+        Gate::authorize('admin');
+
         $reservation->load('customer', 'room.accommodation');
         return view('reservations.show', compact('reservation'));
     }
 
     public function edit(Reservation $reservation)
     {
+        Gate::authorize('admin');
+
         $customers = Customer::all();
         $rooms = Room::with('accommodation')->get();
         return view('reservations.edit', compact('reservation', 'customers', 'rooms'));
@@ -55,6 +64,8 @@ class ReservationController extends Controller
 
     public function update(Request $request, Reservation $reservation)
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'room_id' => 'required|exists:rooms,id',
@@ -73,6 +84,8 @@ class ReservationController extends Controller
 
     public function destroy(Reservation $reservation)
     {
+        Gate::authorize('admin');
+
         $reservation->delete();
 
         return redirect()->route('reservations.index')
