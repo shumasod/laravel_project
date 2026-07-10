@@ -7,6 +7,7 @@ use App\Http\Requests\StockOperationRequest;
 use App\Models\Product;
 use App\Services\StockService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -25,6 +26,8 @@ class StockTransactionController extends Controller
      */
     public function store(StockOperationRequest $request, Product $product)
     {
+        Gate::authorize('admin');
+
         try {
             $type = StockTransactionType::from($request->input('type'));
             $quantity = $request->integer('quantity');
@@ -75,6 +78,13 @@ class StockTransactionController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('admin');
+
+        $request->validate([
+            'type'       => 'nullable|in:IN,OUT,ADJUST',
+            'product_id' => 'nullable|integer|exists:products,id',
+        ]);
+
         $query = \App\Models\StockTransaction::query()
             ->with('product');
 
