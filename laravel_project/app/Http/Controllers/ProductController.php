@@ -299,4 +299,10 @@ class ProductController extends Controller
 
         return response()->json(['data' => $products, 'total' => $products->count()]);
     }
+
+    public function qrcodeBatch()
+    {
+        $products = Product::orderBy('name')->get();
+        return view('products.qrcode-batch', compact('products'));
+    }
 }
