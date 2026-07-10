@@ -3,6 +3,17 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Customer;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+
+// APIレート制限の設定
+RateLimiter::for('api', function (Request $request) {
+    return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+});
+
+RateLimiter::for('api-write', function (Request $request) {
+    return Limit::perMinute(20)->by($request->user()?->id ?: $request->ip());
+});
 
 /*
 |--------------------------------------------------------------------------
