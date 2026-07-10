@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /**
@@ -18,6 +19,14 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('admin');
+
+        $request->validate([
+            'search'     => 'nullable|string|max:100',
+            'sort'       => 'nullable|in:stock_asc,stock_desc,name',
+            'alert_only' => 'nullable|boolean',
+        ]);
+
         $query = Product::query();
 
         // 検索フィルタ
@@ -58,6 +67,8 @@ class ProductController extends Controller
      */
     public function create()
     {
+        Gate::authorize('admin');
+
         return view('products.create');
     }
 
@@ -66,6 +77,8 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:100', 'unique:products'],
             'name' => ['required', 'string', 'max:255'],
@@ -86,6 +99,8 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        Gate::authorize('admin');
+
         $transactions = $product->stockTransactions()
             ->latest()
             ->paginate(50);
@@ -98,6 +113,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        Gate::authorize('admin');
+
         return view('products.edit', compact('product'));
     }
 
@@ -106,6 +123,8 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku,' . $product->id],
             'name' => ['required', 'string', 'max:255'],
@@ -125,6 +144,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        Gate::authorize('admin');
+
         $product->delete();
 
         return redirect()
@@ -138,6 +159,8 @@ class ProductController extends Controller
      */
     public function qrcode(Product $product)
     {
+        Gate::authorize('admin');
+
         $url = route('products.show', $product);
         $svg = QrCode::format('svg')
             ->size(200)
@@ -153,6 +176,8 @@ class ProductController extends Controller
      */
     public function qrcodeDownload(Product $product)
     {
+        Gate::authorize('admin');
+
         $url = route('products.show', $product);
         $png = QrCode::format('png')
             ->size(300)
