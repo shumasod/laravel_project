@@ -8,172 +8,45 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .navbar-dark .navbar-nav .nav-link {
-            color: rgba(255,255,255,0.85);
-        }
-        .navbar-dark .navbar-nav .nav-link:hover {
-            color: #fff;
-        }
-        .navbar-dark .navbar-nav .nav-link.active {
-            color: #fff;
-            font-weight: 600;
-        }
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .dropdown-item:hover {
-            background-color: #3498db;
-            color: white;
-        }
-        .dropdown-item i {
-            width: 20px;
-            margin-right: 8px;
-        }
-        nav {
-            background-color: #2c3e50;
-            padding: 0;
-            margin-bottom: 0;
-        }
-        nav .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        nav h1 {
-            color: white;
-            font-size: 1.5rem;
-        }
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        nav a:hover {
-            color: #3498db;
-        }
-        .alert {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .btn {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn-primary {
-            background-color: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #2980b9;
-        }
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        .btn-success {
-            background-color: #27ae60;
-            color: white;
-        }
-        .btn-success:hover {
-            background-color: #229954;
-        }
-        table {
-            width: 100%;
-            background-color: white;
-            border-collapse: collapse;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #34495e;
-            color: white;
-        }
-        .card {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="number"],
-        input[type="date"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .navbar-dark .navbar-nav .nav-link { color: rgba(255,255,255,0.85); }
+        .navbar-dark .navbar-nav .nav-link:hover { color: #fff; }
+        .navbar-dark .navbar-nav .nav-link.active { color: #fff; font-weight: 600; }
+        .dropdown-menu { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .dropdown-item:hover { background-color: #3498db; color: white; }
+        .dropdown-item i { width: 20px; margin-right: 8px; }
+        nav { background-color: #2c3e50; padding: 0; margin-bottom: 0; }
+        .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .btn { display: inline-block; padding: 0.5rem 1rem; border: none; border-radius: 4px; text-decoration: none; cursor: pointer; transition: background-color 0.3s; }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-primary:hover { background-color: #2980b9; }
+        .btn-danger { background-color: #e74c3c; color: white; }
+        .btn-danger:hover { background-color: #c0392b; }
+        .btn-success { background-color: #27ae60; color: white; }
+        .btn-success:hover { background-color: #229954; }
+        table { width: 100%; background-color: white; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #34495e; color: white; }
+        .card { background-color: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea, select { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; }
+        textarea { min-height: 100px; resize: vertical; }
     </style>
     @stack('styles')
 </head>
 <body>
-    <!-- Main Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2c3e50;">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-building me-2"></i>総合管理システム
-            </a>
+            <a class="navbar-brand" href="/"><i class="bi bi-building me-2"></i>総合管理システム</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- 旅行検索 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('travel*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-airplane me-1"></i>旅行検索
@@ -187,8 +60,6 @@
                             <li><a class="dropdown-item" href="{{ route('travel.search', ['type' => 'pension']) }}"><i class="bi bi-tree"></i>ペンション</a></li>
                         </ul>
                     </li>
-
-                    <!-- イベント検索 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('events*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-calendar-event me-1"></i>イベント検索
@@ -203,8 +74,6 @@
                             <li><a class="dropdown-item" href="{{ route('events.search', ['region' => '東京', 'category' => 'fireworks']) }}"><i class="bi bi-stars"></i>花火大会</a></li>
                         </ul>
                     </li>
-
-                    <!-- 選挙分析 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('elections*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-bar-chart me-1"></i>選挙分析
@@ -218,8 +87,6 @@
                             <li><a class="dropdown-item" href="{{ route('elections.index') }}"><i class="bi bi-people"></i>政党一覧</a></li>
                         </ul>
                     </li>
-
-                    <!-- 在庫管理 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('products*') || request()->is('stock-transactions*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-box-seam me-1"></i>在庫管理
@@ -227,14 +94,14 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('products.index') }}"><i class="bi bi-list-ul"></i>商品一覧</a></li>
                             <li><a class="dropdown-item" href="{{ route('products.create') }}"><i class="bi bi-plus-circle"></i>商品登録</a></li>
+                            <li><a class="dropdown-item" href="{{ route('products.qrcode.batch') }}"><i class="bi bi-printer"></i>一括QR印刷</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('stock-transactions.index') }}"><i class="bi bi-clock-history"></i>在庫履歴</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('products.index', ['alert_only' => 1]) }}"><i class="bi bi-exclamation-triangle text-warning"></i>要発注アラート</a></li>
+                            <li><a class="dropdown-item" href="{{ route('products.stats') }}"><i class="bi bi-bar-chart-line text-info"></i>在庫統計</a></li>
                         </ul>
                     </li>
-
-                    <!-- 宿泊管理 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('accommodations*') || request()->is('rooms*') || request()->is('reservations*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-calendar-check me-1"></i>宿泊管理
@@ -248,8 +115,6 @@
                             <li><a class="dropdown-item" href="{{ route('reviews.index') }}"><i class="bi bi-star"></i>レビュー</a></li>
                         </ul>
                     </li>
-
-                    <!-- 経理・レポート -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('payments*') || request()->is('reports*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-graph-up me-1"></i>経理・レポート
@@ -266,11 +131,8 @@
 
     <div class="container">
         @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
+            <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-
         @yield('content')
     </div>
 
