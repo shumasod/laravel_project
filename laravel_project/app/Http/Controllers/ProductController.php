@@ -165,4 +165,17 @@ class ProductController extends Controller
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
+
+    public function stats()
+    {
+        $stats = [
+            'total'         => Product::count(),
+            'normal'        => Product::whereColumn('stock_quantity', '>', 'reorder_point')->count(),
+            'below_reorder' => Product::belowReorderPoint()->count(),
+            'out_of_stock'  => Product::where('stock_quantity', '<=', 0)->count(),
+            'total_stock'   => Product::sum('stock_quantity'),
+        ];
+        $recent = \App\Models\StockTransaction::with('product')->latest()->take(10)->get();
+        return view('products.stats', compact('stats', 'recent'));
+    }
 }
