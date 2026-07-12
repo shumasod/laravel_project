@@ -159,7 +159,8 @@ class ProductController extends Controller
             ->errorCorrection('M')
             ->generate($url);
 
-        $filename = 'qrcode_' . $product->sku . '.png';
+        $safeSku = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $product->sku);
+        $filename = 'qrcode_' . $safeSku . '.png';
 
         return response($png, 200)
             ->header('Content-Type', 'image/png')
