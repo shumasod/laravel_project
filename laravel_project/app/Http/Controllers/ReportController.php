@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ReportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
@@ -21,6 +22,8 @@ class ReportController extends Controller
      */
     public function dashboard(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'accommodation_id' => 'nullable|integer|exists:accommodations,id',
         ]);
@@ -39,6 +42,8 @@ class ReportController extends Controller
      */
     public function reservations(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'accommodation_id' => 'nullable|integer|exists:accommodations,id',
             'start_date'       => 'nullable|date',
@@ -62,6 +67,8 @@ class ReportController extends Controller
      */
     public function revenue(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'accommodation_id' => 'nullable|integer|exists:accommodations,id',
             'start_date'       => 'nullable|date',
@@ -85,6 +92,8 @@ class ReportController extends Controller
      */
     public function occupancy(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'accommodation_id' => 'required|integer|exists:accommodations,id',
             'start_date'       => 'nullable|date',
@@ -108,6 +117,8 @@ class ReportController extends Controller
      */
     public function reviews(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'accommodation_id' => 'nullable|integer|exists:accommodations,id',
         ]);
@@ -126,6 +137,8 @@ class ReportController extends Controller
      */
     public function customers(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'accommodation_id' => 'nullable|integer|exists:accommodations,id',
         ]);
@@ -144,6 +157,8 @@ class ReportController extends Controller
      */
     public function export(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'accommodation_id' => 'nullable|integer|exists:accommodations,id',
             'type'             => 'nullable|in:dashboard,reservations,revenue,occupancy,reviews,customers',
