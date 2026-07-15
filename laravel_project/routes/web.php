@@ -103,10 +103,12 @@ Route::get('/events/calendar', [EventController::class, 'calendar'])->name('even
 // イベント詳細
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
-// お気に入り
-Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
-Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
-Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
+// お気に入り (認証必須)
+Route::middleware('auth')->group(function () {
+    Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
+    Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
+    Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
+});
 
 // API
 Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('events.api.search');
