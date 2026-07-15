@@ -165,4 +165,27 @@ class ProductController extends Controller
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
+
+    public function export()
+    {
+        $products = Product::orderBy('name')->get();
+        $bom = chr(0xEF) . chr(0xBB) . chr(0xBF);
+        $csv = $bom . "SKU,商品名,説明,在庫数,発注点,ステータス,登録日\n";
+        foreach ($products as $p) {
+            $status = $p->isOutOfStock() ? '在庫切れ' : ($p->isBelowReorderPoint() ? '要発注' : '正常');
+            $csv .= implode(',', [
+                '"' . str_replace('"', '""', $p->sku) . '"',
+                '"' . str_replace('"', '""', $p->name) . '"',
+                '"' . str_replace('"', '""', $p->description ?? '') . '"',
+                $p->stock_quantity,
+                $p->reorder_point,
+                '"' . $status . '"',
+                $p->created_at->format('Y-m-d'),
+            ]) . "\n";
+        }
+        $filename = 'products_' . date('Ymd') . '.csv';
+        return response($csv)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
 }
