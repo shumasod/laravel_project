@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /**
@@ -58,6 +59,7 @@ class ProductController extends Controller
      */
     public function create()
     {
+        Gate::authorize('admin');
         return view('products.create');
     }
 
@@ -66,6 +68,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:100', 'unique:products'],
             'name' => ['required', 'string', 'max:255'],
@@ -98,6 +101,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        Gate::authorize('admin');
         return view('products.edit', compact('product'));
     }
 
@@ -106,6 +110,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku,' . $product->id],
             'name' => ['required', 'string', 'max:255'],
@@ -125,6 +130,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        Gate::authorize('admin');
         $product->delete();
 
         return redirect()
