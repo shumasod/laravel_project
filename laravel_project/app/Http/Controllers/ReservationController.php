@@ -31,7 +31,7 @@ class ReservationController extends Controller
             'check_out_date' => 'required|date|after:check_in_date',
             'status' => 'required|in:pending,confirmed,cancelled,completed',
             'total_amount' => 'required|numeric|min:0',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         Reservation::create($validated);
@@ -62,7 +62,7 @@ class ReservationController extends Controller
             'check_out_date' => 'required|date|after:check_in_date',
             'status' => 'required|in:pending,confirmed,cancelled,completed',
             'total_amount' => 'required|numeric|min:0',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $reservation->update($validated);

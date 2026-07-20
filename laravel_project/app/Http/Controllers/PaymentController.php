@@ -55,8 +55,8 @@ class PaymentController extends Controller
             'reservation_id' => 'required|exists:reservations,id',
             'amount' => 'required|numeric|min:0',
             'payment_method' => 'required|in:credit_card,bank_transfer,cash,digital_wallet',
-            'payment_gateway' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'payment_gateway' => 'nullable|string|max:100',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         try {
