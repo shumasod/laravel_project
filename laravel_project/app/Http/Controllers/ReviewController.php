@@ -6,6 +6,7 @@ use App\Models\Review;
 use App\Models\Reservation;
 use App\Models\Accommodation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ReviewController extends Controller
@@ -205,6 +206,11 @@ class ReviewController extends Controller
      */
     public function addAdminResponse(Review $review, Request $request)
     {
+        // 施設管理者のみ返信可能。'admin' Gateはis_adminフラグまたは将来のRBACと連動。
+        if (Gate::denies('admin')) {
+            abort(403, '施設管理者のみ返信できます。');
+        }
+
         $validated = $request->validate([
             'admin_response' => 'required|string|max:1000',
         ]);
