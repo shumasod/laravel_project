@@ -113,40 +113,28 @@ Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('e
 
 // ===== 選挙分析システム =====
 
-// ダッシュボード
+// 公開読み取りルート
 Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
-
-// 選挙関連
 Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
-Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
 Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
-
-// 議席予測
-Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
 Route::get('/elections/{election}/predictions', [ElectionController::class, 'getPredictions'])->name('elections.predictions');
 Route::get('/elections/{election}/validate-accuracy', [ElectionController::class, 'validateAccuracy'])->name('elections.validate-accuracy');
-
-// 選挙比較
 Route::get('/elections-compare', [ElectionController::class, 'compare'])->name('elections.compare');
-
-// 選挙結果登録
-Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
-
-// 世論調査データ
 Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
-Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
-
-// 政党関連
 Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
-Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
 Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])->name('parties.trend');
-
-// 選挙区関連
 Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
-
-// インポート・エクスポート
-Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
 Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
+
+// 管理者のみ書き込み可能なルート
+Route::middleware(['auth', 'can:admin'])->group(function () {
+    Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
+    Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
+    Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
+    Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
+    Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
+    Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
+});
 
 // ===== テスト用ルート (local環境のみ) =====
 if (!app()->environment('local', 'testing')) {
