@@ -346,7 +346,10 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
         const select = this.querySelector('select[name="district_id"]');
         select.innerHTML = '<option value="">選択してください</option>';
         data.data.forEach(district => {
-            select.innerHTML += `<option value="${district.id}">${district.name}</option>`;
+            const opt = document.createElement('option');
+            opt.value = district.id;
+            opt.textContent = district.name;
+            select.appendChild(opt);
         });
     });
 
@@ -357,7 +360,10 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
         const select = this.querySelector('select[name="party_id"]');
         select.innerHTML = '<option value="">選択してください</option>';
         data.data.forEach(party => {
-            select.innerHTML += `<option value="${party.id}">${party.name}</option>`;
+            const opt = document.createElement('option');
+            opt.value = party.id;
+            opt.textContent = party.name;
+            select.appendChild(opt);
         });
     });
 });
