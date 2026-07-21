@@ -17,12 +17,15 @@ class Customer extends Model
         'email',
         'phone',
         'address',
-        'last_stay_date',
-        'total_stays',
-        'total_spent',
         'privacy_consent',
         'privacy_consent_date',
         'marketing_consent',
+    ];
+
+    protected $guarded = [
+        'last_stay_date',
+        'total_stays',
+        'total_spent',
         'deletion_requested',
         'deletion_requested_at',
     ];
