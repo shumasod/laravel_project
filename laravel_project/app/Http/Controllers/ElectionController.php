@@ -12,6 +12,7 @@ use App\Services\ElectionDataService;
 use App\Services\ElectionAnalysisService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 use Carbon\Carbon;
 
 class ElectionController extends Controller
@@ -141,6 +142,8 @@ class ElectionController extends Controller
      */
     public function predict(Request $request, Election $election): JsonResponse
     {
+        Gate::authorize('admin');
+
         try {
             $result = $this->analysisService->predictSeats($election->id);
 
@@ -241,6 +244,8 @@ class ElectionController extends Controller
      */
     public function storePollData(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'party_id' => 'required|exists:political_parties,id',
             'election_id' => 'nullable|exists:elections,id',
@@ -319,6 +324,8 @@ class ElectionController extends Controller
      */
     public function storeParty(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'name' => 'required|string|max:100|unique:political_parties,name',
             'short_name' => 'nullable|string|max:20',
@@ -358,6 +365,8 @@ class ElectionController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'name' => 'required|string|max:200',
             'type' => 'required|in:house_of_representatives,house_of_councillors',
@@ -386,6 +395,8 @@ class ElectionController extends Controller
      */
     public function storeResult(Request $request, Election $election): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'district_id' => 'required|exists:election_districts,id',
             'party_id' => 'required|exists:political_parties,id',
@@ -412,6 +423,8 @@ class ElectionController extends Controller
      */
     public function importCsv(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'file'          => 'required|file|mimes:csv,txt|max:10240',
             'type'          => 'required|in:election,poll',
