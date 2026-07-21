@@ -332,7 +332,11 @@ class TravelController extends Controller
      */
     public function suggest(Request $request): JsonResponse
     {
-        $keyword = $request->input('q', '');
+        $validated = $request->validate([
+            'q' => 'nullable|string|max:100',
+        ]);
+
+        $keyword = $validated['q'] ?? '';
 
         if (mb_strlen($keyword) < 1) {
             return response()->json(['data' => []]);
@@ -369,8 +373,13 @@ class TravelController extends Controller
      */
     public function reviews(Request $request, int $accommodationId): JsonResponse
     {
-        $perPage = $request->input('per_page', 10);
-        $sort = $request->input('sort', 'newest');
+        $validated = $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:50',
+            'sort'     => 'nullable|in:newest,rating_high,rating_low,helpful',
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $sort = $validated['sort'] ?? 'newest';
 
         $query = Review::with('customer:id,name')
             ->where('accommodation_id', $accommodationId)
