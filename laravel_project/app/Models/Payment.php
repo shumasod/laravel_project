@@ -14,16 +14,19 @@ class Payment extends Model
         'reservation_id',
         'amount',
         'payment_method',
-        'status',
-        'transaction_id',
         'payment_gateway',
         'payment_details',
+        'notes',
+    ];
+
+    protected $guarded = [
+        'status',
+        'transaction_id',
         'paid_at',
         'refunded_at',
         'refund_amount',
         'refund_reason',
         'failure_reason',
-        'notes',
     ];
 
     protected $casts = [
@@ -47,11 +50,10 @@ class Payment extends Model
      */
     public function markAsPaid(string $transactionId = null): void
     {
-        $this->update([
-            'status' => 'completed',
-            'paid_at' => now(),
-            'transaction_id' => $transactionId ?? $this->transaction_id,
-        ]);
+        $this->status = 'completed';
+        $this->paid_at = now();
+        $this->transaction_id = $transactionId ?? $this->transaction_id;
+        $this->save();
     }
 
     /**
@@ -59,10 +61,9 @@ class Payment extends Model
      */
     public function markAsFailed(string $reason): void
     {
-        $this->update([
-            'status' => 'failed',
-            'failure_reason' => $reason,
-        ]);
+        $this->status = 'failed';
+        $this->failure_reason = $reason;
+        $this->save();
     }
 
     /**
@@ -70,14 +71,11 @@ class Payment extends Model
      */
     public function refund(float $amount = null, string $reason = null): void
     {
-        $refundAmount = $amount ?? $this->amount;
-
-        $this->update([
-            'status' => 'refunded',
-            'refunded_at' => now(),
-            'refund_amount' => $refundAmount,
-            'refund_reason' => $reason,
-        ]);
+        $this->status = 'refunded';
+        $this->refunded_at = now();
+        $this->refund_amount = $amount ?? $this->amount;
+        $this->refund_reason = $reason;
+        $this->save();
     }
 
     /**
