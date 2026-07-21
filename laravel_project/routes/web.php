@@ -113,40 +113,30 @@ Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('e
 
 // ===== 選挙分析システム =====
 
-// ダッシュボード
-Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
+// 公開読み取り (レート制限付き)
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
+    Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
+    Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
+    Route::get('/elections/{election}/predictions', [ElectionController::class, 'getPredictions'])->name('elections.predictions');
+    Route::get('/elections/{election}/validate-accuracy', [ElectionController::class, 'validateAccuracy'])->name('elections.validate-accuracy');
+    Route::get('/elections-compare', [ElectionController::class, 'compare'])->name('elections.compare');
+    Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
+    Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
+    Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])->name('parties.trend');
+    Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
+    Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
+});
 
-// 選挙関連
-Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
-Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
-Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
-
-// 議席予測
-Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
-Route::get('/elections/{election}/predictions', [ElectionController::class, 'getPredictions'])->name('elections.predictions');
-Route::get('/elections/{election}/validate-accuracy', [ElectionController::class, 'validateAccuracy'])->name('elections.validate-accuracy');
-
-// 選挙比較
-Route::get('/elections-compare', [ElectionController::class, 'compare'])->name('elections.compare');
-
-// 選挙結果登録
-Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
-
-// 世論調査データ
-Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
-Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
-
-// 政党関連
-Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
-Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
-Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])->name('parties.trend');
-
-// 選挙区関連
-Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
-
-// インポート・エクスポート
-Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
-Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
+// 書き込み操作 (認証・管理者権限・レート制限必須)
+Route::middleware(['auth', 'can:admin', 'throttle:20,1'])->group(function () {
+    Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
+    Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
+    Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
+    Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
+    Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
+    Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
+});
 
 // ===== テスト用ルート (local環境のみ) =====
 if (!app()->environment('local', 'testing')) {
