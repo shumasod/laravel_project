@@ -332,6 +332,8 @@ class TravelController extends Controller
      */
     public function suggest(Request $request): JsonResponse
     {
+        $request->validate(['q' => 'nullable|string|max:200']);
+
         $keyword = $request->input('q', '');
 
         if (mb_strlen($keyword) < 1) {
@@ -348,8 +350,13 @@ class TravelController extends Controller
      */
     public function areas(Request $request): JsonResponse
     {
-        $parentId = $request->input('parent_id');
-        $level = $request->input('level');
+        $request->validate([
+            'parent_id' => 'nullable|integer|exists:areas,id',
+            'level'     => 'nullable|integer|min:1|max:5',
+        ]);
+
+        $parentId = $request->integer('parent_id') ?: null;
+        $level = $request->integer('level') ?: null;
 
         $query = Area::query();
 
