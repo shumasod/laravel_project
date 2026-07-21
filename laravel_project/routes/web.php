@@ -73,8 +73,8 @@ Route::middleware('auth')->group(function () {
 
 // トップ・検索
 Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
-Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
-Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');
+Route::get('/travel/search', [TravelController::class, 'search'])->middleware('throttle:30,1')->name('travel.search');
+Route::get('/travel/suggest', [TravelController::class, 'suggest'])->middleware('throttle:60,1')->name('travel.suggest');
 
 // 施設詳細
 Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->name('travel.show');
@@ -83,8 +83,8 @@ Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'rev
 
 // 予約フロー
 Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
-Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
-Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->middleware('throttle:10,1')->name('travel.booking.confirm');
+Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->middleware('throttle:5,1')->name('travel.booking.complete');
 
 // お気に入り
 Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
@@ -97,7 +97,7 @@ Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.ar
 
 // トップ・検索
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
+Route::get('/events/search', [EventController::class, 'search'])->middleware('throttle:30,1')->name('events.search');
 Route::get('/events/calendar', [EventController::class, 'calendar'])->name('events.calendar');
 
 // イベント詳細
@@ -105,11 +105,11 @@ Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show'
 
 // お気に入り
 Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
-Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
+Route::post('/events/favorites', [EventController::class, 'addFavorite'])->middleware('throttle:20,1')->name('events.favorites.add');
 Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
 
 // API
-Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('events.api.search');
+Route::get('/api/events/search', [EventController::class, 'apiSearch'])->middleware('throttle:30,1')->name('events.api.search');
 
 // ===== 選挙分析システム =====
 
