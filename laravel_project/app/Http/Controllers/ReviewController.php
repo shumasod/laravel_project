@@ -116,8 +116,11 @@ class ReviewController extends Controller
             'amenities_rating' => $validated['amenities_rating'] ?? null,
             'title' => $validated['title'] ?? null,
             'comment' => $validated['comment'] ?? null,
-            'is_verified' => true, // 実際の予約からのレビューなので自動的に認証済み
         ]);
+
+        // Verified flag is set by the application, not via mass assignment
+        $review->is_verified = true;
+        $review->save();
 
         return redirect()->route('reviews.show', $review)
             ->with('success', 'レビューを投稿しました。ありがとうございます！');

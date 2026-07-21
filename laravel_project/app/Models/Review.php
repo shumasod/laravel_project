@@ -24,6 +24,9 @@ class Review extends Model
         'title',
         'comment',
         'photos',
+    ];
+
+    protected $guarded = [
         'is_verified',
         'is_published',
         'admin_response',
