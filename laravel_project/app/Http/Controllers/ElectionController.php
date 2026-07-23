@@ -12,6 +12,7 @@ use App\Services\ElectionDataService;
 use App\Services\ElectionAnalysisService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ElectionController extends Controller
@@ -150,9 +151,14 @@ class ElectionController extends Controller
                 'data' => $result,
             ]);
         } catch (\Exception $e) {
+            Log::error('Election seat prediction failed', [
+                'election_id' => $election->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'status' => 'error',
-                'message' => '予測中にエラーが発生しました: ' . $e->getMessage(),
+                'message' => '議席予測に失敗しました',
             ], 500);
         }
     }
