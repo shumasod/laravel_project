@@ -408,7 +408,7 @@ class ElectionController extends Controller
     public function importCsv(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt',
+            'file' => 'required|file|mimes:csv,txt|max:10240',
             'type' => 'required|in:election,poll',
             'election_type' => 'required_if:type,election|in:house_of_representatives,house_of_councillors',
         ]);
