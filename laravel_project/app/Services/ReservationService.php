@@ -203,7 +203,12 @@ class ReservationService
                 $data['price_breakdown'] = $pricing['breakdown'];
             }
 
-            $reservation->update($data);
+            $allowedFields = [
+                'number_of_guests', 'check_in_date', 'check_out_date',
+                'total_amount', 'applied_discounts', 'price_breakdown',
+                'cancellation_reason', 'notes', 'updated_by_user_id',
+            ];
+            $reservation->update(array_intersect_key($data, array_flip($allowedFields)));
 
             if (isset($data['user_id'])) {
                 $reservation->updated_by_user_id = $data['user_id'];
