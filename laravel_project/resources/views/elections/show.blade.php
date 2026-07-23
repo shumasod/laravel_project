@@ -316,22 +316,40 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            let html = '<table class="table table-sm"><thead><tr>';
-            html += '<th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead><tbody>';
+            const container = document.getElementById('accuracyResults');
+            container.innerHTML = '';
+
+            const table = document.createElement('table');
+            table.className = 'table table-sm';
+            table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
+            const tbody = document.createElement('tbody');
 
             for (const [party, result] of Object.entries(data.data.validation)) {
-                html += `<tr>
-                    <td>${party}</td>
-                    <td>${result.predicted}</td>
-                    <td>${result.actual}</td>
-                    <td>${result.error}</td>
-                    <td>${result.within_range ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</td>
-                </tr>`;
-            }
-            html += '</tbody></table>';
-            html += `<p class="text-muted">平均誤差: ${data.data.average_error}議席</p>`;
+                const tr = document.createElement('tr');
 
-            document.getElementById('accuracyResults').innerHTML = html;
+                [party, result.predicted, result.actual, result.error].forEach(val => {
+                    const td = document.createElement('td');
+                    td.textContent = val;
+                    tr.appendChild(td);
+                });
+
+                const tdBadge = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
+                badge.textContent = result.within_range ? 'Yes' : 'No';
+                tdBadge.appendChild(badge);
+                tr.appendChild(tdBadge);
+
+                tbody.appendChild(tr);
+            }
+
+            table.appendChild(tbody);
+            container.appendChild(table);
+
+            const note = document.createElement('p');
+            note.className = 'text-muted';
+            note.textContent = '平均誤差: ' + data.data.average_error + '議席';
+            container.appendChild(note);
         }
         this.disabled = false;
     });
