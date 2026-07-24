@@ -117,7 +117,6 @@ class ReviewController extends Controller
             'title' => $validated['title'] ?? null,
             'comment' => $validated['comment'] ?? null,
         ]);
-        // 実際の予約からのレビューなので自動的に認証済みにする
         $review->is_verified = true;
         $review->save();
 
