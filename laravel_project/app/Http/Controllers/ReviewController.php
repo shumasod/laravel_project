@@ -206,6 +206,8 @@ class ReviewController extends Controller
      */
     public function addAdminResponse(Review $review, Request $request)
     {
+        abort_unless(auth()->user()?->is_admin, 403, '管理者権限が必要です。');
+
         $validated = $request->validate([
             'admin_response' => 'required|string|max:1000',
         ]);
