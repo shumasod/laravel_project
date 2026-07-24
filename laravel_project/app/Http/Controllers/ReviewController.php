@@ -116,8 +116,10 @@ class ReviewController extends Controller
             'amenities_rating' => $validated['amenities_rating'] ?? null,
             'title' => $validated['title'] ?? null,
             'comment' => $validated['comment'] ?? null,
-            'is_verified' => true, // 実際の予約からのレビューなので自動的に認証済み
         ]);
+        // 実際の予約からのレビューなので自動的に認証済みにする
+        $review->is_verified = true;
+        $review->save();
 
         return redirect()->route('reviews.show', $review)
             ->with('success', 'レビューを投稿しました。ありがとうございます！');
@@ -205,6 +207,8 @@ class ReviewController extends Controller
      */
     public function addAdminResponse(Review $review, Request $request)
     {
+        abort_unless(auth()->user()?->is_admin, 403, '管理者権限が必要です。');
+
         $validated = $request->validate([
             'admin_response' => 'required|string|max:1000',
         ]);
