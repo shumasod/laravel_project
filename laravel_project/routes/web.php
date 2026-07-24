@@ -128,8 +128,8 @@ Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])-
 Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
 Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
 
-// 書き込み系 (認証必須)
-Route::middleware('auth')->group(function () {
+// 書き込み系 (管理者のみ)
+Route::middleware(['auth', 'can:admin'])->group(function () {
     Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
     Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
     Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
