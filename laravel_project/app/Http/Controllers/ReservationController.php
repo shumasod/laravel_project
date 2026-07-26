@@ -25,14 +25,19 @@ class ReservationController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'room_id' => 'required|exists:rooms,id',
-            'check_in_date' => 'required|date|after_or_equal:today',
+            'customer_id'    => 'required|exists:customers,id',
+            'room_id'        => 'required|exists:rooms,id',
+            'check_in_date'  => 'required|date|after_or_equal:today',
             'check_out_date' => 'required|date|after:check_in_date',
-            'status' => 'required|in:pending,confirmed,cancelled,completed',
-            'total_amount' => 'required|numeric|min:0',
-            'notes' => 'nullable|string',
+            // モデルの定数に合わせた値のみ許可 (total_amountはサービスが算出)
+            'status'         => 'required|in:provisional,confirmed,cancelled',
+            'notes'          => 'nullable|string|max:2000',
         ]);
+
+        $room = \App\Models\Room::findOrFail($validated['room_id']);
+        $nights = \Carbon\Carbon::parse($validated['check_in_date'])
+            ->diffInDays(\Carbon\Carbon::parse($validated['check_out_date']));
+        $validated['total_amount'] = $room->price_per_night * $nights;
 
         Reservation::create($validated);
 
@@ -56,14 +61,19 @@ class ReservationController extends Controller
     public function update(Request $request, Reservation $reservation)
     {
         $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'room_id' => 'required|exists:rooms,id',
-            'check_in_date' => 'required|date',
+            'customer_id'    => 'required|exists:customers,id',
+            'room_id'        => 'required|exists:rooms,id',
+            'check_in_date'  => 'required|date',
             'check_out_date' => 'required|date|after:check_in_date',
-            'status' => 'required|in:pending,confirmed,cancelled,completed',
-            'total_amount' => 'required|numeric|min:0',
-            'notes' => 'nullable|string',
+            // モデル定数に合わせた正しいステータス値 (total_amountは再計算)
+            'status'         => 'required|in:provisional,confirmed,checked_in,checked_out,cancelled,no_show',
+            'notes'          => 'nullable|string|max:2000',
         ]);
+
+        $room = \App\Models\Room::findOrFail($validated['room_id']);
+        $nights = \Carbon\Carbon::parse($validated['check_in_date'])
+            ->diffInDays(\Carbon\Carbon::parse($validated['check_out_date']));
+        $validated['total_amount'] = $room->price_per_night * $nights;
 
         $reservation->update($validated);
 
