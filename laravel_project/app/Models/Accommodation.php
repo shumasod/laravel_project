@@ -30,6 +30,15 @@ class Accommodation extends Model
         'nearest_station_id',
         'station_distance_minutes',
         'star_rating',
+        'highlight_features',
+        'parking_info',
+        'access_info',
+        'min_price',
+        'max_price',
+        'cancellation_policy_id',
+    ];
+
+    protected $guarded = [
         'review_score',
         'review_count',
         'cleanliness_score',
@@ -37,15 +46,9 @@ class Accommodation extends Model
         'location_score',
         'facility_score',
         'value_score',
-        'highlight_features',
-        'parking_info',
-        'access_info',
-        'min_price',
-        'max_price',
         'is_featured',
         'is_new',
         'display_priority',
-        'cancellation_policy_id',
     ];
 
     protected $casts = [
