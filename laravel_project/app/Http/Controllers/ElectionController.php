@@ -484,7 +484,7 @@ class ElectionController extends Controller
             // データ行
             foreach ($data['results'] as $partyName => $result) {
                 fputcsv($file, [
-                    $partyName,
+                    $this->sanitizeCsvCell((string) $partyName),
                     $result['total_seats'],
                     $result['total_votes'],
                     '-',
@@ -496,5 +496,14 @@ class ElectionController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    private function sanitizeCsvCell(string $value): string
+    {
+        if ($value !== '' && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "\t" . $value;
+        }
+
+        return $value;
     }
 }
