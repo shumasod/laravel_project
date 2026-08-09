@@ -120,6 +120,10 @@ class ReviewController extends Controller
         $review->is_verified = true;
         $review->save();
 
+        // Verified flag is set by the application, not via mass assignment
+        $review->is_verified = true;
+        $review->save();
+
         return redirect()->route('reviews.show', $review)
             ->with('success', 'レビューを投稿しました。ありがとうございます！');
     }
