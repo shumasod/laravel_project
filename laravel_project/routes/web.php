@@ -71,20 +71,21 @@ Route::middleware('auth')->group(function () {
 
 // ===== 旅行検索サイト =====
 
-// トップ・検索
 Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
-Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
-Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');
+
+// 検索・サジェスト (レート制限付き)
+Route::get('/travel/search', [TravelController::class, 'search'])->middleware('throttle:30,1')->name('travel.search');
+Route::get('/travel/suggest', [TravelController::class, 'suggest'])->middleware('throttle:60,1')->name('travel.suggest');
 
 // 施設詳細
 Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->name('travel.show');
 Route::get('/travel/accommodations/{id}/plans', [TravelController::class, 'searchPlans'])->name('travel.plans');
 Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'reviews'])->name('travel.reviews');
 
-// 予約フロー
+// 予約フロー (レート制限付き)
 Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
-Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
-Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->middleware('throttle:10,1')->name('travel.booking.confirm');
+Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->middleware('throttle:5,1')->name('travel.booking.complete');
 
 // お気に入り
 Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
@@ -95,21 +96,22 @@ Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.ar
 
 // ===== イベント検索システム =====
 
-// トップ・検索
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
-Route::get('/events/calendar', [EventController::class, 'calendar'])->name('events.calendar');
+
+// 検索 (レート制限付き)
+Route::get('/events/search', [EventController::class, 'search'])->middleware('throttle:30,1')->name('events.search');
+Route::get('/events/calendar', [EventController::class, 'calendar'])->middleware('throttle:30,1')->name('events.calendar');
 
 // イベント詳細
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
 // お気に入り
 Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
-Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
+Route::post('/events/favorites', [EventController::class, 'addFavorite'])->middleware('throttle:20,1')->name('events.favorites.add');
 Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
 
-// API
-Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('events.api.search');
+// API (レート制限付き)
+Route::get('/api/events/search', [EventController::class, 'apiSearch'])->middleware('throttle:30,1')->name('events.api.search');
 
 // ===== 選挙分析システム =====
 
@@ -130,6 +132,16 @@ Route::middleware('throttle:60,1')->group(function () {
 
 // 書き込み操作 (認証・管理者権限・レート制限必須)
 Route::middleware(['auth', 'can:admin', 'throttle:20,1'])->group(function () {
+    Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
+    Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
+    Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
+    Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
+    Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
+    Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
+});
+
+// 書き込み系 (管理者のみ)
+Route::middleware(['auth', 'can:admin'])->group(function () {
     Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
     Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
     Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
