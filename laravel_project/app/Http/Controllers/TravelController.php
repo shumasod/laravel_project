@@ -348,8 +348,13 @@ class TravelController extends Controller
      */
     public function areas(Request $request): JsonResponse
     {
-        $parentId = $request->input('parent_id');
-        $level = $request->input('level');
+        $validated = $request->validate([
+            'parent_id' => 'nullable|integer|min:1',
+            'level'     => 'nullable|integer|min:1|max:5',
+        ]);
+
+        $parentId = $validated['parent_id'] ?? null;
+        $level    = $validated['level'] ?? null;
 
         $query = Area::query();
 
@@ -369,8 +374,13 @@ class TravelController extends Controller
      */
     public function reviews(Request $request, int $accommodationId): JsonResponse
     {
-        $perPage = $request->input('per_page', 10);
-        $sort = $request->input('sort', 'newest');
+        $validated = $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'sort' => 'nullable|in:newest,rating_high,rating_low,helpful',
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $sort = $validated['sort'] ?? 'newest';
 
         $query = Review::with('customer:id,name')
             ->where('accommodation_id', $accommodationId)

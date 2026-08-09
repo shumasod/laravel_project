@@ -179,8 +179,13 @@ class EventController extends Controller
      */
     public function calendar(Request $request)
     {
-        $region = $request->get('region', '東京');
-        $month = $request->get('month', date('Y-m'));
+        $validated = $request->validate([
+            'region' => 'nullable|string|max:100',
+            'month'  => 'nullable|date_format:Y-m',
+        ]);
+
+        $region = $validated['region'] ?? '東京';
+        $month  = $validated['month'] ?? date('Y-m');
 
         $startDate = $month . '-01';
         $endDate = date('Y-m-t', strtotime($startDate));
