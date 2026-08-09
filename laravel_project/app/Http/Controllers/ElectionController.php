@@ -12,6 +12,7 @@ use App\Services\ElectionDataService;
 use App\Services\ElectionAnalysisService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ElectionController extends Controller
@@ -26,8 +27,13 @@ class ElectionController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $fromYear = $request->input('from_year', 2010);
-        $toYear = $request->input('to_year', 2026);
+        $request->validate([
+            'from_year' => 'nullable|integer|min:1900|max:2100',
+            'to_year'   => 'nullable|integer|min:1900|max:2100|gte:from_year',
+        ]);
+
+        $fromYear = (int) $request->input('from_year', 2010);
+        $toYear   = (int) $request->input('to_year', 2026);
 
         // 衆議院選挙一覧
         $hrElections = Election::houseOfRepresentatives()
@@ -145,9 +151,14 @@ class ElectionController extends Controller
                 'data' => $result,
             ]);
         } catch (\Exception $e) {
+            Log::error('Election seat prediction failed', [
+                'election_id' => $election->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'status' => 'error',
-                'message' => '予測中にエラーが発生しました: ' . $e->getMessage(),
+                'message' => '議席予測に失敗しました',
             ], 500);
         }
     }
@@ -408,7 +419,7 @@ class ElectionController extends Controller
     public function importCsv(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt',
+            'file' => 'required|file|mimes:csv,txt|max:10240',
             'type' => 'required|in:election,poll',
             'election_type' => 'required_if:type,election|in:house_of_representatives,house_of_councillors',
         ]);
