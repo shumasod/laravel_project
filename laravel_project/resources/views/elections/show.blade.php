@@ -321,6 +321,11 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
 
             const table = document.createElement('table');
             table.className = 'table table-sm';
+            table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
+            const tbody = document.createElement('tbody');
+
+            const table = document.createElement('table');
+            table.className = 'table table-sm';
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
             ['政党', '予測', '実績', '誤差', '範囲内'].forEach(text => {
@@ -334,25 +339,29 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
             const tbody = document.createElement('tbody');
             for (const [party, result] of Object.entries(data.data.validation)) {
                 const tr = document.createElement('tr');
+
                 [party, result.predicted, result.actual, result.error].forEach(val => {
                     const td = document.createElement('td');
                     td.textContent = val;
                     tr.appendChild(td);
                 });
+
                 const tdBadge = document.createElement('td');
                 const badge = document.createElement('span');
                 badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
                 badge.textContent = result.within_range ? 'Yes' : 'No';
                 tdBadge.appendChild(badge);
                 tr.appendChild(tdBadge);
+
                 tbody.appendChild(tr);
             }
+
             table.appendChild(tbody);
             container.appendChild(table);
 
             const note = document.createElement('p');
             note.className = 'text-muted';
-            note.textContent = `平均誤差: ${data.data.average_error}議席`;
+            note.textContent = '平均誤差: ' + data.data.average_error + '議席';
             container.appendChild(note);
         }
         this.disabled = false;
