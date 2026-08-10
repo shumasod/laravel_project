@@ -352,8 +352,13 @@ class TravelController extends Controller
      */
     public function areas(Request $request): JsonResponse
     {
-        $parentId = $request->input('parent_id');
-        $level = $request->input('level');
+        $validated = $request->validate([
+            'parent_id' => 'nullable|integer|min:1',
+            'level'     => 'nullable|integer|min:1|max:5',
+        ]);
+
+        $parentId = $validated['parent_id'] ?? null;
+        $level    = $validated['level'] ?? null;
 
         $query = Area::query();
 
