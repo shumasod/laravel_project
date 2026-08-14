@@ -34,7 +34,9 @@ class ReservationController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        Reservation::create($validated);
+        $reservation = Reservation::create($validated);
+        $reservation->status = Reservation::STATUS_PROVISIONAL;
+        $reservation->save();
 
         return redirect()->route('reservations.index')
             ->with('success', '予約を登録しました。');
