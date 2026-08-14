@@ -78,9 +78,7 @@ class StockService
 
         // WHY: 在庫がマイナスになることを防ぐ（ビジネスルール）
         if ($product->stock_quantity < $quantity) {
-            throw new InvalidArgumentException(
-                "在庫不足: 現在庫{$product->stock_quantity}個に対して{$quantity}個の出庫はできません"
-            );
+            throw new InvalidArgumentException('在庫が不足しています。現在の在庫数を確認してください。');
         }
 
         return DB::transaction(function () use ($product, $quantity, $reason, $createdBy) {
@@ -139,7 +137,8 @@ class StockService
             ]);
 
             // 2. 商品の在庫数を実地棚卸の値に更新
-            $product->update(['stock_quantity' => $actualQuantity]);
+            $product->stock_quantity = $actualQuantity;
+            $product->save();
 
             // 3. 監査ログ（棚卸差異は重要なので別途記録）
             Log::warning('Stock ADJUST', [

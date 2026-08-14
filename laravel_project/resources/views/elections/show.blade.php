@@ -333,6 +333,24 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
             table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
             const tbody = document.createElement('tbody');
 
+            const table = document.createElement('table');
+            table.className = 'table table-sm';
+            table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
+            const tbody = document.createElement('tbody');
+
+            const table = document.createElement('table');
+            table.className = 'table table-sm';
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['政党', '予測', '実績', '誤差', '範囲内'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
             for (const [party, result] of Object.entries(data.data.validation)) {
                 const tr = document.createElement('tr');
                 const withinBadge = result.within_range
