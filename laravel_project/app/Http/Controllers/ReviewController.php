@@ -6,6 +6,7 @@ use App\Models\Review;
 use App\Models\Reservation;
 use App\Models\Accommodation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ReviewController extends Controller
@@ -194,10 +195,7 @@ class ReviewController extends Controller
      */
     public function addHelpfulVote(Review $review, Request $request)
     {
-        $customer = auth()->user();
-        if (!$customer) {
-            return redirect()->back()->withErrors(['error' => 'ログインが必要です。']);
-        }
+        $customer = auth()->user()->customer ?? abort(403);
 
         $review->addHelpfulVote($customer);
 
@@ -210,7 +208,7 @@ class ReviewController extends Controller
      */
     public function addAdminResponse(Review $review, Request $request)
     {
-        abort_unless(auth()->user()?->is_admin, 403, '管理者権限が必要です。');
+        Gate::authorize('admin');
 
         $validated = $request->validate([
             'admin_response' => 'required|string|max:1000',
