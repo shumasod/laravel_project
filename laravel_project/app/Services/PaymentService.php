@@ -53,7 +53,7 @@ class PaymentService
 
                 return $payment;
             } catch (Exception $e) {
-                $payment->markAsFailed($e->getMessage());
+                $payment->markAsFailed('決済ゲートウェイエラー');
                 throw $e;
             }
         });
