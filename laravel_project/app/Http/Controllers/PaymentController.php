@@ -70,8 +70,8 @@ class PaymentController extends Controller
             return redirect()->route('payments.show', $payment)
                 ->with('success', '決済を作成しました。');
         } catch (\Exception $e) {
-            Log::error('Payment creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return back()->withInput()->withErrors(['error' => '決済の作成に失敗しました']);
+            Log::error('Payment creation failed', ['error' => $e->getMessage()]);
+            return back()->withInput()->withErrors(['error' => '決済の作成に失敗しました。']);
         }
     }
 
@@ -97,8 +97,8 @@ class PaymentController extends Controller
             return redirect()->route('payments.show', $payment)
                 ->with('success', '決済処理が完了しました。');
         } catch (\Exception $e) {
-            Log::error('Payment processing failed', ['payment_id' => $payment->id, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return back()->withErrors(['error' => '決済処理に失敗しました']);
+            Log::error('Payment processing failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['error' => '決済処理に失敗しました。']);
         }
     }
 
@@ -122,8 +122,8 @@ class PaymentController extends Controller
             return redirect()->route('payments.show', $payment)
                 ->with('success', '返金処理が完了しました。');
         } catch (\Exception $e) {
-            Log::error('Payment refund failed', ['payment_id' => $payment->id, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return back()->withErrors(['error' => '返金処理に失敗しました']);
+            Log::error('Payment refund failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['error' => '返金処理に失敗しました。']);
         }
     }
 
@@ -138,8 +138,8 @@ class PaymentController extends Controller
             return redirect()->route('payments.show', $payment)
                 ->with('success', '決済をキャンセルしました。');
         } catch (\Exception $e) {
-            Log::error('Payment cancellation failed', ['payment_id' => $payment->id, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return back()->withErrors(['error' => '決済キャンセルに失敗しました']);
+            Log::error('Payment cancellation failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['error' => '決済キャンセルに失敗しました。']);
         }
     }
 
