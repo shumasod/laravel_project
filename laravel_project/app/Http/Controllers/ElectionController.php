@@ -27,8 +27,13 @@ class ElectionController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $fromYear = $request->input('from_year', 2010);
-        $toYear = $request->input('to_year', 2026);
+        $request->validate([
+            'from_year' => 'nullable|integer|min:1900|max:2100',
+            'to_year'   => 'nullable|integer|min:1900|max:2100|gte:from_year',
+        ]);
+
+        $fromYear = (int) $request->input('from_year', 2010);
+        $toYear   = (int) $request->input('to_year', 2026);
 
         // 衆議院選挙一覧
         $hrElections = Election::houseOfRepresentatives()
@@ -410,7 +415,7 @@ class ElectionController extends Controller
     public function importCsv(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt',
+            'file' => 'required|file|mimes:csv,txt|max:10240',
             'type' => 'required|in:election,poll',
             'election_type' => 'required_if:type,election|in:house_of_representatives,house_of_councillors',
         ]);
