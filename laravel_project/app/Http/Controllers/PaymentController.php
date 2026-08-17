@@ -63,9 +63,8 @@ class PaymentController extends Controller
         try {
             $payment = $this->paymentService->createPayment($validated);
 
-            // 決済処理を実行
-            if ($request->has('process_now') && $request->input('process_now')) {
-                $this->paymentService->processPayment($payment, $validated);
+            if ($request->boolean('process_now')) {
+                $this->paymentService->processPayment($payment);
             }
 
             return redirect()->route('payments.show', $payment)
