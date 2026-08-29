@@ -6,7 +6,7 @@ pydantic-settings==2.15.0
 # Database
 # SECURITY FIX: Updated from 1.1.0 to fix SQL Injection vulnerability (CVE-2024-36039)
 pymysql==1.2.0
-SQLAlchemy==2.0.51
+SQLAlchemy==2.0.52
 psycopg2-binary==2.9.12
 
 # Web Scraping
