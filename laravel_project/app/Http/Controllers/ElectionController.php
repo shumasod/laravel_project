@@ -256,7 +256,7 @@ class ElectionController extends Controller
             'response_rate' => 'nullable|numeric|min:0|max:100',
             'demographic_breakdown' => 'nullable|array',
             'regional_breakdown' => 'nullable|array',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $pollData = PollData::create($validated);
@@ -371,7 +371,7 @@ class ElectionController extends Controller
             'voter_turnout' => 'nullable|numeric|min:0|max:100',
             'total_voters' => 'nullable|integer|min:0',
             'total_votes' => 'nullable|integer|min:0',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $election = Election::create($validated);
@@ -397,7 +397,7 @@ class ElectionController extends Controller
             'seats_won' => 'required|integer|min:0',
             'is_winner' => 'boolean',
             'rank' => 'nullable|integer|min:1',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $result = $election->results()->create($validated);

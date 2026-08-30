@@ -211,7 +211,7 @@ class TravelController extends Controller
             'name_kana' => 'required|string|max:100',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
-            'arrival_time' => 'required|string',
+            'arrival_time' => 'required|string|max:50',
             'special_requests' => 'nullable|string|max:1000',
             'payment_method' => 'required|in:on_site,credit_card',
         ]);
@@ -247,7 +247,7 @@ class TravelController extends Controller
             'name_kana' => 'required|string|max:100',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
-            'arrival_time' => 'required|string',
+            'arrival_time' => 'required|string|max:50',
             'special_requests' => 'nullable|string|max:1000',
             'payment_method' => 'required|in:on_site,credit_card',
         ]);
