@@ -308,6 +308,15 @@ document.querySelectorAll('#runPrediction, #runPredictionEmpty').forEach(btn => 
     });
 });
 
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 // 精度検証
 document.getElementById('validateAccuracy')?.addEventListener('click', function() {
     this.disabled = true;
@@ -318,6 +327,16 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
         if (data.status === 'success') {
             const container = document.getElementById('accuracyResults');
             container.innerHTML = '';
+
+            const table = document.createElement('table');
+            table.className = 'table table-sm';
+            table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
+            const tbody = document.createElement('tbody');
+
+            const table = document.createElement('table');
+            table.className = 'table table-sm';
+            table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
+            const tbody = document.createElement('tbody');
 
             const table = document.createElement('table');
             table.className = 'table table-sm';
@@ -334,19 +353,13 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
             const tbody = document.createElement('tbody');
             for (const [party, result] of Object.entries(data.data.validation)) {
                 const tr = document.createElement('tr');
-                [party, result.predicted, result.actual, result.error].forEach(val => {
-                    const td = document.createElement('td');
-                    td.textContent = val;
-                    tr.appendChild(td);
-                });
-                const tdBadge = document.createElement('td');
-                const badge = document.createElement('span');
-                badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
-                badge.textContent = result.within_range ? 'Yes' : 'No';
-                tdBadge.appendChild(badge);
-                tr.appendChild(tdBadge);
+                const withinBadge = result.within_range
+                    ? '<span class="badge bg-success">Yes</span>'
+                    : '<span class="badge bg-danger">No</span>';
+                tr.innerHTML = `<td>${escapeHtml(party)}</td><td>${escapeHtml(result.predicted)}</td><td>${escapeHtml(result.actual)}</td><td>${escapeHtml(result.error)}</td><td>${withinBadge}</td>`;
                 tbody.appendChild(tr);
             }
+
             table.appendChild(tbody);
             container.appendChild(table);
 

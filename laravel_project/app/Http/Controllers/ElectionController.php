@@ -151,14 +151,10 @@ class ElectionController extends Controller
                 'data' => $result,
             ]);
         } catch (\Exception $e) {
-            Log::error('Election seat prediction failed', [
-                'election_id' => $election->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            Log::error('Election seat prediction failed', ['election_id' => $election->id, 'error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
-                'message' => '議席予測に失敗しました',
+                'message' => '予測中にエラーが発生しました。',
             ], 500);
         }
     }
@@ -419,8 +415,8 @@ class ElectionController extends Controller
     public function importCsv(Request $request): JsonResponse
     {
         $request->validate([
-            'file'          => 'required|file|mimes:csv,txt|max:10240',
-            'type'          => 'required|in:election,poll',
+            'file' => 'required|file|mimes:csv,txt|max:10240',
+            'type' => 'required|in:election,poll',
             'election_type' => 'required_if:type,election|in:house_of_representatives,house_of_councillors',
         ]);
 

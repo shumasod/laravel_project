@@ -34,7 +34,6 @@ class PaymentService
     public function processPayment(Payment $payment, array $paymentData = []): Payment
     {
         return DB::transaction(function () use ($payment, $paymentData) {
-            // ステータスを処理中に変更
             $payment->status = 'processing';
             $payment->save();
 
@@ -46,7 +45,6 @@ class PaymentService
                 if ($result['success']) {
                     $payment->markAsPaid($result['transaction_id']);
 
-                    // 予約のステータスも更新
                     $payment->reservation->payment_status = 'paid';
                     $payment->reservation->save();
                 } else {
@@ -119,7 +117,6 @@ class PaymentService
             if ($result['success']) {
                 $payment->refund($refundAmount, $reason);
 
-                // 予約のステータスも更新
                 $payment->reservation->payment_status = 'refunded';
                 $payment->reservation->save();
             } else {

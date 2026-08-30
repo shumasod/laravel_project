@@ -132,15 +132,30 @@ class EventController extends Controller
      */
     public function addFavorite(Request $request)
     {
-        $request->validate([
-            'event_id' => 'required|string',
-            'event_data' => 'required|array',
+        $validated = $request->validate([
+            'event_id'              => 'required|string|max:100',
+            'event_data'            => 'required|array',
+            'event_data.id'         => 'nullable|string|max:100',
+            'event_data.title'      => 'nullable|string|max:300',
+            'event_data.start_date' => 'nullable|date',
+            'event_data.end_date'   => 'nullable|date',
+            'event_data.venue'      => 'nullable|string|max:300',
+            'event_data.address'    => 'nullable|string|max:500',
+            'event_data.category'   => 'nullable|string|max:100',
+            'event_data.price'      => 'nullable|string|max:200',
+            'event_data.source'     => 'nullable|string|max:100',
+            'event_data.url'        => 'nullable|url|max:500',
+            'event_data.image_url'  => 'nullable|url|max:500',
         ]);
 
         $userId = auth()->id() ?? session()->getId();
         $favorites = Cache::get("event_favorites_{$userId}", []);
 
-        $favorites[$request->event_id] = $request->event_data;
+        if (count($favorites) >= 100) {
+            return response()->json(['success' => false, 'message' => 'お気に入りの上限(100件)に達しています'], 422);
+        }
+
+        $favorites[$validated['event_id']] = $validated['event_data'];
 
         Cache::put("event_favorites_{$userId}", $favorites, 86400 * 30); // 30日間保存
 

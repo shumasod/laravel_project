@@ -72,8 +72,6 @@ Route::middleware('auth')->group(function () {
 // ===== 旅行検索サイト =====
 
 Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
-
-// 検索・サジェスト (レート制限付き)
 Route::get('/travel/search', [TravelController::class, 'search'])->middleware('throttle:30,1')->name('travel.search');
 Route::get('/travel/suggest', [TravelController::class, 'suggest'])->middleware('throttle:60,1')->name('travel.suggest');
 
@@ -97,10 +95,8 @@ Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.ar
 // ===== イベント検索システム =====
 
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-
-// 検索 (レート制限付き)
 Route::get('/events/search', [EventController::class, 'search'])->middleware('throttle:30,1')->name('events.search');
-Route::get('/events/calendar', [EventController::class, 'calendar'])->middleware('throttle:30,1')->name('events.calendar');
+Route::get('/events/calendar', [EventController::class, 'calendar'])->name('events.calendar');
 
 // イベント詳細
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
@@ -110,12 +106,12 @@ Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name(
 Route::post('/events/favorites', [EventController::class, 'addFavorite'])->middleware('throttle:20,1')->name('events.favorites.add');
 Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
 
-// API (レート制限付き)
+// API
 Route::get('/api/events/search', [EventController::class, 'apiSearch'])->middleware('throttle:30,1')->name('events.api.search');
 
 // ===== 選挙分析システム =====
 
-// 閲覧系 (公開)
+// 公開読み取りルート
 Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
 Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
 Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
@@ -128,11 +124,11 @@ Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])-
 Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
 Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
 
-// 書き込み系 (管理者のみ)
+// 管理者のみ書き込み可能なルート
 Route::middleware(['auth', 'can:admin'])->group(function () {
     Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
-    Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
     Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
+    Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
     Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
     Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
     Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
