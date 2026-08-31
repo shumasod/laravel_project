@@ -74,7 +74,13 @@ class ProductController extends Controller
             'reorder_point' => ['required', 'integer', 'min:0'],
         ]);
 
-        Product::create($validated);
+        $product = Product::create($validated);
+        $product->stock_quantity = $validated['stock_quantity'];
+        $initialStock = $validated['stock_quantity'];
+        unset($validated['stock_quantity']);
+        $product = Product::create($validated);
+        $product->stock_quantity = $initialStock;
+        $product->save();
 
         return redirect()
             ->route('products.index')
