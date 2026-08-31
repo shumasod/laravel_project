@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\Reservation;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -23,6 +24,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
+        Gate::authorize('admin');
         $payments = Payment::with(['reservation.customer', 'reservation.room'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -37,6 +39,7 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
+        Gate::authorize('admin');
         $request->validate([
             'reservation_id' => 'nullable|integer|exists:reservations,id',
         ]);
@@ -52,6 +55,7 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'reservation_id' => 'required|exists:reservations,id',
             'amount' => 'required|numeric|min:0',
@@ -80,6 +84,7 @@ class PaymentController extends Controller
      */
     public function show(Payment $payment)
     {
+        Gate::authorize('admin');
         $payment->load(['reservation.customer', 'reservation.room']);
         return Inertia::render('Payments/Show', [
             'payment' => $payment,
@@ -91,6 +96,7 @@ class PaymentController extends Controller
      */
     public function process(Payment $payment)
     {
+        Gate::authorize('admin');
         try {
             $this->paymentService->processPayment($payment);
 
@@ -107,6 +113,7 @@ class PaymentController extends Controller
      */
     public function refund(Request $request, Payment $payment)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'amount' => 'nullable|numeric|min:0|max:' . $payment->amount,
             'reason' => 'nullable|string',
@@ -132,6 +139,7 @@ class PaymentController extends Controller
      */
     public function cancel(Payment $payment)
     {
+        Gate::authorize('admin');
         try {
             $this->paymentService->cancelPayment($payment);
 
@@ -148,6 +156,7 @@ class PaymentController extends Controller
      */
     public function checkStatus(Reservation $reservation)
     {
+        Gate::authorize('admin');
         $status = $this->paymentService->checkPaymentStatus($reservation);
 
         return view('payments.status', compact('reservation', 'status'));
