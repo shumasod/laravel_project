@@ -52,6 +52,14 @@ class Reservation extends Model
         'updated_by_user_id',
     ];
 
+    protected $guarded = [
+        'status',
+        'payment_status',
+        'actual_check_in_time',
+        'actual_check_out_time',
+        'cancelled_at',
+    ];
+
     protected $casts = [
         'check_in_date' => 'date',
         'check_out_date' => 'date',
