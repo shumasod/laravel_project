@@ -54,7 +54,7 @@ pytest==9.1.1
 # COMPATIBILITY FIX: Updated to support pytest 8.0.0
 pytest-asyncio==1.4.0
 pytest-cov==7.1.0
-faker==40.36.0
+faker==40.37.0
 
 # Utilities
 click==8.4.2
