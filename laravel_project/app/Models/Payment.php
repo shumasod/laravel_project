@@ -16,6 +16,7 @@ class Payment extends Model
         'payment_method',
         'payment_gateway',
         'payment_details',
+        'refund_reason',
         'notes',
     ];
 
@@ -25,7 +26,6 @@ class Payment extends Model
         'paid_at',
         'refunded_at',
         'refund_amount',
-        'refund_reason',
         'failure_reason',
     ];
 
