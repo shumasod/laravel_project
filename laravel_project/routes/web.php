@@ -86,6 +86,18 @@ Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->na
 Route::get('/travel/accommodations/{id}/plans', [TravelController::class, 'searchPlans'])->name('travel.plans');
 Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'reviews'])->name('travel.reviews');
 
+// 予約フロー (認証必須)
+Route::middleware('auth')->group(function () {
+    Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
+    Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
+    Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+});
+
+// お気に入り (認証必須)
+Route::middleware('auth')->group(function () {
+    Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
+    Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
+});
 // 予約フロー (レート制限付き)
 Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
 Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm')->middleware('throttle:20,1');
@@ -115,6 +127,12 @@ Route::get('/events/calendar', [EventController::class, 'calendar'])->name('even
 // イベント詳細
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
+// お気に入り (認証必須)
+Route::middleware('auth')->group(function () {
+    Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
+    Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
+    Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
+});
 // お気に入り
 Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
 Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add')->middleware('throttle:30,1');
