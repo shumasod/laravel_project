@@ -76,6 +76,10 @@ class ProductController extends Controller
 
         $product = Product::create($validated);
         $product->stock_quantity = $validated['stock_quantity'];
+        $initialStock = $validated['stock_quantity'];
+        unset($validated['stock_quantity']);
+        $product = Product::create($validated);
+        $product->stock_quantity = $initialStock;
         $product->save();
 
         return redirect()
