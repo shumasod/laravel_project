@@ -29,12 +29,14 @@ class ReservationController extends Controller
             'room_id' => 'required|exists:rooms,id',
             'check_in_date' => 'required|date|after_or_equal:today',
             'check_out_date' => 'required|date|after:check_in_date',
-            'status' => 'required|in:pending,confirmed,cancelled,completed',
+            'status' => 'required|in:provisional,confirmed,checked_in,checked_out,cancelled,no_show',
             'total_amount' => 'required|numeric|min:0',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
-        Reservation::create($validated);
+        $reservation = Reservation::create($validated);
+        $reservation->status = Reservation::STATUS_PROVISIONAL;
+        $reservation->save();
 
         return redirect()->route('reservations.index')
             ->with('success', '予約を登録しました。');
@@ -60,9 +62,9 @@ class ReservationController extends Controller
             'room_id' => 'required|exists:rooms,id',
             'check_in_date' => 'required|date',
             'check_out_date' => 'required|date|after:check_in_date',
-            'status' => 'required|in:pending,confirmed,cancelled,completed',
+            'status' => 'required|in:provisional,confirmed,checked_in,checked_out,cancelled,no_show',
             'total_amount' => 'required|numeric|min:0',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $reservation->update($validated);

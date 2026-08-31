@@ -267,12 +267,21 @@ keywordInput?.addEventListener('input', function() {
                     return;
                 }
 
-                suggestDropdown.innerHTML = data.data.map(item => `
-                    <a class="dropdown-item" href="#" data-type="${item.type}" data-id="${item.id}" data-name="${item.name}">
-                        <small class="text-muted">${item.type === 'area' ? 'エリア' : '施設'}</small>
-                        ${item.label}
-                    </a>
-                `).join('');
+                suggestDropdown.innerHTML = '';
+                data.data.forEach(item => {
+                    const a = document.createElement('a');
+                    a.className = 'dropdown-item';
+                    a.href = '#';
+                    a.dataset.type = item.type;
+                    a.dataset.id = item.id;
+                    a.dataset.name = item.name;
+                    const small = document.createElement('small');
+                    small.className = 'text-muted';
+                    small.textContent = item.type === 'area' ? 'エリア' : '施設';
+                    a.appendChild(small);
+                    a.appendChild(document.createTextNode(' ' + item.label));
+                    suggestDropdown.appendChild(a);
+                });
                 suggestDropdown.style.display = 'block';
             });
     }, 300);

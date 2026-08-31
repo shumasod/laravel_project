@@ -34,8 +34,8 @@ class PaymentService
     public function processPayment(Payment $payment, array $paymentData = []): Payment
     {
         return DB::transaction(function () use ($payment, $paymentData) {
-            // ステータスを処理中に変更
-            $payment->update(['status' => 'processing']);
+            $payment->status = 'processing';
+            $payment->save();
 
             try {
                 // 実際の決済ゲートウェイとの連携処理
@@ -45,17 +45,15 @@ class PaymentService
                 if ($result['success']) {
                     $payment->markAsPaid($result['transaction_id']);
 
-                    // 予約のステータスも更新
-                    $payment->reservation->update([
-                        'payment_status' => 'paid',
-                    ]);
+                    $payment->reservation->payment_status = 'paid';
+                    $payment->reservation->save();
                 } else {
                     $payment->markAsFailed($result['error'] ?? 'Unknown error');
                 }
 
                 return $payment;
             } catch (Exception $e) {
-                $payment->markAsFailed($e->getMessage());
+                $payment->markAsFailed('決済ゲートウェイエラー');
                 throw $e;
             }
         });
@@ -119,10 +117,8 @@ class PaymentService
             if ($result['success']) {
                 $payment->refund($refundAmount, $reason);
 
-                // 予約のステータスも更新
-                $payment->reservation->update([
-                    'payment_status' => 'refunded',
-                ]);
+                $payment->reservation->payment_status = 'refunded';
+                $payment->reservation->save();
             } else {
                 throw new Exception($result['error'] ?? 'Refund failed');
             }
@@ -166,7 +162,8 @@ class PaymentService
             throw new Exception('この決済はキャンセルできません。');
         }
 
-        $payment->update(['status' => 'cancelled']);
+        $payment->status = 'cancelled';
+        $payment->save();
 
         return $payment;
     }

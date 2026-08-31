@@ -17,9 +17,12 @@ class Product extends Model
         'sku',
         'name',
         'description',
-        'stock_quantity',
         'reorder_point',
         'warehouse_id',
+    ];
+
+    protected $guarded = [
+        'stock_quantity',
     ];
 
     protected $casts = [
