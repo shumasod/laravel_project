@@ -267,6 +267,7 @@ keywordInput?.addEventListener('input', function() {
                     return;
                 }
 
+                suggestDropdown.textContent = '';
                 suggestDropdown.innerHTML = '';
                 data.data.forEach(item => {
                     const a = document.createElement('a');

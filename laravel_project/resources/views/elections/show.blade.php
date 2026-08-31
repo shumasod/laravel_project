@@ -326,6 +326,7 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
     .then(data => {
         if (data.status === 'success') {
             const container = document.getElementById('accuracyResults');
+            container.textContent = '';
             container.innerHTML = '';
 
             const table = document.createElement('table');
@@ -342,6 +343,9 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
             table.className = 'table table-sm';
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
+            ['政党', '予測', '実績', '誤差', '範囲内'].forEach(h => {
+                const th = document.createElement('th');
+                th.textContent = h;
             ['政党', '予測', '実績', '誤差', '範囲内'].forEach(text => {
                 const th = document.createElement('th');
                 th.textContent = text;
@@ -353,6 +357,26 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
             const tbody = document.createElement('tbody');
             for (const [party, result] of Object.entries(data.data.validation)) {
                 const tr = document.createElement('tr');
+                [party, result.predicted, result.actual, result.error].forEach(val => {
+                    const td = document.createElement('td');
+                    td.textContent = val;
+                    tr.appendChild(td);
+                });
+                const tdBadge = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
+                badge.textContent = result.within_range ? 'Yes' : 'No';
+                tdBadge.appendChild(badge);
+                tr.appendChild(tdBadge);
+                tbody.appendChild(tr);
+            }
+            table.appendChild(tbody);
+            container.appendChild(table);
+
+            const p = document.createElement('p');
+            p.className = 'text-muted';
+            p.textContent = '平均誤差: ' + data.data.average_error + '議席';
+            container.appendChild(p);
                 const withinBadge = result.within_range
                     ? '<span class="badge bg-success">Yes</span>'
                     : '<span class="badge bg-danger">No</span>';
@@ -379,8 +403,10 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
     .then(response => response.json())
     .then(data => {
         const select = this.querySelector('select[name="district_id"]');
-        select.innerHTML = '<option value="">選択してください</option>';
+        select.textContent = '';
+        select.appendChild(new Option('選択してください', ''));
         data.data.forEach(district => {
+            select.appendChild(new Option(district.name, district.id));
             const opt = document.createElement('option');
             opt.value = district.id;
             opt.textContent = district.name;
@@ -393,8 +419,10 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
     .then(response => response.json())
     .then(data => {
         const select = this.querySelector('select[name="party_id"]');
-        select.innerHTML = '<option value="">選択してください</option>';
+        select.textContent = '';
+        select.appendChild(new Option('選択してください', ''));
         data.data.forEach(party => {
+            select.appendChild(new Option(party.name, party.id));
             const opt = document.createElement('option');
             opt.value = party.id;
             opt.textContent = party.name;
