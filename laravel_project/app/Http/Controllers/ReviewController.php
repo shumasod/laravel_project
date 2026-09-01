@@ -16,17 +16,23 @@ class ReviewController extends Controller
      */
     public function index(Request $request)
     {
+        $request->validate([
+            'accommodation_id' => 'nullable|integer|exists:accommodations,id',
+            'rating'           => 'nullable|integer|min:1|max:5',
+            'sort'             => 'nullable|in:helpful,rating_high,rating_low,recent',
+        ]);
+
         $query = Review::with(['customer', 'accommodation', 'reservation'])
             ->published();
 
         // 宿泊施設でフィルタ
-        if ($request->has('accommodation_id')) {
-            $query->where('accommodation_id', $request->input('accommodation_id'));
+        if ($request->filled('accommodation_id')) {
+            $query->where('accommodation_id', $request->integer('accommodation_id'));
         }
 
         // 評価でフィルタ
-        if ($request->has('rating')) {
-            $query->withRating($request->input('rating'));
+        if ($request->filled('rating')) {
+            $query->withRating($request->integer('rating'));
         }
 
         // 並び替え
@@ -64,6 +70,11 @@ class ReviewController extends Controller
             $reservation = Reservation::with(['room.accommodation', 'customer'])
                 ->findOrFail($reservationId);
 
+            // 自分の予約のみレビュー可能
+            if ($reservation->customer_id !== auth()->id()) {
+                abort(403);
+            }
+
             // チェックアウト済みかチェック
             if ($reservation->status !== Reservation::STATUS_CHECKED_OUT) {
                 return redirect()->back()
@@ -99,6 +110,11 @@ class ReviewController extends Controller
 
         $reservation = Reservation::with(['room.accommodation', 'customer'])->findOrFail($validated['reservation_id']);
 
+        // 自分の予約のみレビュー可能
+        if ($reservation->customer_id !== auth()->id()) {
+            abort(403);
+        }
+
         // 既にレビュー済みかチェック
         if ($reservation->review()->exists()) {
             return redirect()->back()
@@ -124,6 +140,9 @@ class ReviewController extends Controller
         // Verified flag is set by the application, not via mass assignment
         $review->is_verified = true;
         $review->save();
+
+        // 実際の予約からのレビューなので自動的に認証済みにする
+        $review->verify();
 
         return redirect()->route('reviews.show', $review)
             ->with('success', 'レビューを投稿しました。ありがとうございます！');
