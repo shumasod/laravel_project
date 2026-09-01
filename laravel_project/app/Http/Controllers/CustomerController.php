@@ -4,22 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CustomerController extends Controller
 {
     public function index()
     {
+        Gate::authorize('admin');
+
         $customers = Customer::paginate(10);
         return view('customers.index', compact('customers'));
     }
 
     public function create()
     {
+        Gate::authorize('admin');
+
         return view('customers.create');
     }
 
     public function store(Request $request)
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customers,email',
@@ -35,17 +42,23 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
+        Gate::authorize('admin');
+
         $customer->load('reservations.room.accommodation');
         return view('customers.show', compact('customer'));
     }
 
     public function edit(Customer $customer)
     {
+        Gate::authorize('admin');
+
         return view('customers.edit', compact('customer'));
     }
 
     public function update(Request $request, Customer $customer)
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customers,email,' . $customer->id,
@@ -61,6 +74,8 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer)
     {
+        Gate::authorize('admin');
+
         $customer->delete();
 
         return redirect()->route('customers.index')
