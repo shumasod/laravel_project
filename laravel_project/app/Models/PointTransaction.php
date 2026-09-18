@@ -60,7 +60,8 @@ class PointTransaction extends Model
         return DB::transaction(function () use ($customerId, $points, $description, $reservationId, $expireDate) {
             $customer = Customer::lockForUpdate()->findOrFail($customerId);
             $newBalance = $customer->total_points + $points;
-            $customer->update(['total_points' => $newBalance]);
+            $customer->total_points = $newBalance;
+            $customer->save();
 
             return self::create([
                 'customer_id' => $customerId,
@@ -91,7 +92,8 @@ class PointTransaction extends Model
             }
 
             $newBalance = $customer->total_points - $points;
-            $customer->update(['total_points' => $newBalance]);
+            $customer->total_points = $newBalance;
+            $customer->save();
 
             return self::create([
                 'customer_id' => $customerId,
