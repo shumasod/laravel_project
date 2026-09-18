@@ -22,6 +22,10 @@ class ProductController extends Controller
             default      => $query->orderBy('stock_quantity', 'asc'),
         };
         $products = $query->paginate(20);
+
+        $recentlyUpdated = Product::orderBy('updated_at', 'desc')->limit(5)->get();
+
+        return view('products.index', compact('products', 'recentlyUpdated'));
         return view('products.index', compact('products'));
     }
 
