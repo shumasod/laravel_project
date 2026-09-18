@@ -273,6 +273,11 @@ class ElectionController extends Controller
      */
     public function partyTrend(Request $request, PoliticalParty $party): JsonResponse
     {
+        $request->validate([
+            'start_date' => 'nullable|date|after_or_equal:1900-01-01',
+            'end_date'   => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $startDate = Carbon::parse($request->input('start_date', '2010-01-01'));
         $endDate = Carbon::parse($request->input('end_date', now()));
 
