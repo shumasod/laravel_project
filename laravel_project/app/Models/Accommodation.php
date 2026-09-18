@@ -35,10 +35,20 @@ class Accommodation extends Model
         'access_info',
         'min_price',
         'max_price',
+        'cancellation_policy_id',
+    ];
+
+    protected $guarded = [
+        'review_score',
+        'review_count',
+        'cleanliness_score',
+        'service_score',
+        'location_score',
+        'facility_score',
+        'value_score',
         'is_featured',
         'is_new',
         'display_priority',
-        'cancellation_policy_id',
     ];
 
     protected $guarded = [
