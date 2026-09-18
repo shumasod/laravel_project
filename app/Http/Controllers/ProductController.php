@@ -26,6 +26,7 @@ class ProductController extends Controller
         $recentlyUpdated = Product::orderBy('updated_at', 'desc')->limit(5)->get();
 
         return view('products.index', compact('products', 'recentlyUpdated'));
+        return view('products.index', compact('products'));
     }
 
     public function create() { return view('products.create'); }
@@ -88,6 +89,51 @@ class ProductController extends Controller
     }
 
     public function label(Product $product) { return view('products.qr-label', compact('product')); }
+
+    public function importForm()
+    {
+        return view('products.import');
+    }
+
+    public function importCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ]);
+
+        $path = $request->file('csv_file')->getRealPath();
+        $handle = fopen($path, 'r');
+
+        $imported = 0;
+        $skipped  = 0;
+        $firstRow = true;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if ($firstRow) { $firstRow = false; continue; } // skip header
+
+            [$sku, $name, $description, $stock, $reorder] = array_pad($row, 5, null);
+
+            $sku  = trim($sku ?? '');
+            $name = trim($name ?? '');
+
+            if (!$sku || !$name) { $skipped++; continue; }
+            if (Product::where('sku', $sku)->exists()) { $skipped++; continue; }
+
+            Product::create([
+                'sku'            => $sku,
+                'name'           => $name,
+                'description'    => trim($description ?? '') ?: null,
+                'stock_quantity' => max(0, (int) ($stock ?? 0)),
+                'reorder_point'  => max(0, (int) ($reorder ?? 0)),
+            ]);
+            $imported++;
+        }
+
+        fclose($handle);
+
+        return redirect()->route('products.index')
+            ->with('success', "{$imported}件をインポートしました。スキップ: {$skipped}件。");
+    }
 
     public function reorderList()
     {
