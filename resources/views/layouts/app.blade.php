@@ -32,11 +32,15 @@
                 </span>
                 @endif
             </a>
+            <a class="nav-link" href="{{ route('products.index') }}">商品一覧</a>
+            <a class="nav-link" href="{{ route('stock-transactions.index') }}">履歴</a>
+            <a class="nav-link" href="{{ route('products.reorder-list') }}">発注リスト</a>
         </div>
     </div>
 </nav>
 
 <div class="container">
+    <x-flash-messages />
     @yield('content')
 </div>
 
