@@ -6,6 +6,8 @@ use App\Models\Payment;
 use App\Models\Reservation;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
@@ -22,6 +24,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
+        Gate::authorize('admin');
         $payments = Payment::with(['reservation.customer', 'reservation.room'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -36,6 +39,7 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
+        Gate::authorize('admin');
         $request->validate([
             'reservation_id' => 'nullable|integer|exists:reservations,id',
         ]);
@@ -51,26 +55,27 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'reservation_id' => 'required|exists:reservations,id',
             'amount' => 'required|numeric|min:0',
             'payment_method' => 'required|in:credit_card,bank_transfer,cash,digital_wallet',
-            'payment_gateway' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'payment_gateway' => 'nullable|string|max:100',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         try {
             $payment = $this->paymentService->createPayment($validated);
 
-            // 決済処理を実行
-            if ($request->has('process_now') && $request->input('process_now')) {
-                $this->paymentService->processPayment($payment, $request->all());
+            if ($request->boolean('process_now')) {
+                $this->paymentService->processPayment($payment);
             }
 
             return redirect()->route('payments.show', $payment)
                 ->with('success', '決済を作成しました。');
         } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['error' => $e->getMessage()]);
+            Log::error('Payment creation failed', ['error' => $e->getMessage()]);
+            return back()->withInput()->withErrors(['error' => '決済の作成に失敗しました。']);
         }
     }
 
@@ -79,6 +84,7 @@ class PaymentController extends Controller
      */
     public function show(Payment $payment)
     {
+        Gate::authorize('admin');
         $payment->load(['reservation.customer', 'reservation.room']);
         return Inertia::render('Payments/Show', [
             'payment' => $payment,
@@ -90,13 +96,15 @@ class PaymentController extends Controller
      */
     public function process(Payment $payment)
     {
+        Gate::authorize('admin');
         try {
             $this->paymentService->processPayment($payment);
 
             return redirect()->route('payments.show', $payment)
                 ->with('success', '決済処理が完了しました。');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            Log::error('Payment processing failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['error' => '決済処理に失敗しました。']);
         }
     }
 
@@ -105,6 +113,7 @@ class PaymentController extends Controller
      */
     public function refund(Request $request, Payment $payment)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'amount' => 'nullable|numeric|min:0|max:' . $payment->amount,
             'reason' => 'nullable|string',
@@ -120,7 +129,8 @@ class PaymentController extends Controller
             return redirect()->route('payments.show', $payment)
                 ->with('success', '返金処理が完了しました。');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            Log::error('Payment refund failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['error' => '返金処理に失敗しました。']);
         }
     }
 
@@ -129,13 +139,15 @@ class PaymentController extends Controller
      */
     public function cancel(Payment $payment)
     {
+        Gate::authorize('admin');
         try {
             $this->paymentService->cancelPayment($payment);
 
             return redirect()->route('payments.show', $payment)
                 ->with('success', '決済をキャンセルしました。');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            Log::error('Payment cancellation failed', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['error' => '決済キャンセルに失敗しました。']);
         }
     }
 
@@ -144,6 +156,7 @@ class PaymentController extends Controller
      */
     public function checkStatus(Reservation $reservation)
     {
+        Gate::authorize('admin');
         $status = $this->paymentService->checkPaymentStatus($reservation);
 
         return view('payments.status', compact('reservation', 'status'));
