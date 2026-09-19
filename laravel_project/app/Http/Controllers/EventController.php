@@ -132,6 +132,10 @@ class EventController extends Controller
      */
     public function addFavorite(Request $request)
     {
+        $request->validate([
+            'event_id'   => 'required|string|max:100',
+            'event_data' => 'required|array|max:20',
+            'event_data.*' => 'nullable|scalar|max:500',
         $validated = $request->validate([
             'event_id'              => 'required|string|max:100',
             'event_data'            => 'required|array',
