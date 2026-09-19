@@ -14,6 +14,24 @@
             <i class="bi bi-boxes me-1"></i>StockManager
         </a>
         <div class="navbar-nav ms-auto d-flex flex-row gap-3 align-items-center">
+            <a class="nav-link" href="{{ route('products.index') }}">
+                <i class="bi bi-box-seam me-1"></i>商品一覧
+            </a>
+            <a class="nav-link" href="{{ route('stock-transactions.index') }}">
+                <i class="bi bi-clock-history me-1"></i>履歴
+            </a>
+            <a class="nav-link" href="{{ route('products.reorder-list') }}">
+                <i class="bi bi-clipboard2-check me-1"></i>発注リスト
+            </a>
+            <a class="nav-link position-relative" href="{{ route('products.index') }}?alert_only=1">
+                <i class="bi bi-exclamation-triangle me-1"></i>アラート
+                @php $alertCount = \App\Models\Product::belowReorderPoint()->count(); @endphp
+                @if($alertCount > 0)
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ $alertCount > 99 ? '99+' : $alertCount }}
+                </span>
+                @endif
+            </a>
             <a class="nav-link" href="{{ route('products.index') }}">商品一覧</a>
             <a class="nav-link" href="{{ route('stock-transactions.index') }}">履歴</a>
             <a class="nav-link" href="{{ route('products.reorder-list') }}">発注リスト</a>
