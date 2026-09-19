@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\StockTransaction;
 use App\Services\StockService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class StockTransactionController extends Controller
@@ -20,6 +21,9 @@ class StockTransactionController extends Controller
     {
         try {
             $type = StockTransactionType::from($request->input('type'));
+            $transaction = match ($type) {
+                StockTransactionType::IN => $this->stockService->stockIn($product, $request->integer('quantity'), $request->input('reason')),
+                StockTransactionType::OUT => $this->stockService->stockOut($product, $request->integer('quantity'), $request->input('reason')),
             match ($type) {
                 StockTransactionType::IN     => $this->stockService->stockIn($product, $request->integer('quantity'), $request->input('reason')),
                 StockTransactionType::OUT    => $this->stockService->stockOut($product, $request->integer('quantity'), $request->input('reason')),
@@ -37,6 +41,11 @@ class StockTransactionController extends Controller
     public function index(Request $request)
     {
         $query = StockTransaction::query()->with('product');
+        if ($request->filled('type')) $query->where('type', $request->input('type'));
+        if ($request->filled('product_id')) $query->where('product_id', $request->integer('product_id'));
+        if ($request->filled('date_from')) $query->whereDate('created_at', '>=', $request->input('date_from'));
+        if ($request->filled('date_to')) $query->whereDate('created_at', '<=', $request->input('date_to'));
+        $transactions = $query->latest()->paginate(50);
 
         if ($request->filled('type')) {
             $query->where('type', $request->input('type'));
@@ -69,6 +78,10 @@ class StockTransactionController extends Controller
         if ($request->filled('type')) $query->where('type', $request->input('type'));
         if ($request->filled('product_id')) $query->where('product_id', $request->integer('product_id'));
         $transactions = $query->latest()->get();
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="stock_transactions_' . now()->format('Ymd_His') . '.csv"',
+        ];
         $headers = ['Content-Type' => 'text/csv; charset=UTF-8', 'Content-Disposition' => 'attachment; filename="stock_transactions_' . now()->format('Ymd_His') . '.csv"'];
         $callback = function () use ($transactions) {
             $out = fopen('php://output', 'w');
@@ -109,5 +122,30 @@ class StockTransactionController extends Controller
             ? $this->stockService->stockIn($product, 1, 'クイック入庫')
             : $this->stockService->stockOut($product, 1, 'クイック出庫');
         return response()->json(['stock' => $product->fresh()->stock_quantity]);
+    }
+
+    public function summary()
+    {
+        $rows = StockTransaction::query()
+            ->select('product_id', 'type', DB::raw('SUM(quantity) as total_qty'), DB::raw('COUNT(*) as tx_count'))
+            ->with('product:id,sku,name,stock_quantity')
+            ->groupBy('product_id', 'type')
+            ->get();
+
+        $summary = [];
+        foreach ($rows as $row) {
+            $pid = $row->product_id;
+            if (!isset($summary[$pid])) {
+                $summary[$pid] = [
+                    'product' => $row->product,
+                    'IN' => 0, 'OUT' => 0, 'ADJUST' => 0,
+                ];
+            }
+            $summary[$pid][$row->type->value] = (int) $row->total_qty;
+        }
+
+        $summary = collect(array_values($summary))->sortBy(fn($r) => $r['product']?->name ?? '');
+
+        return view('stock-transactions.summary', compact('summary'));
     }
 }

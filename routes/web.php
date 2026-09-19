@@ -10,6 +10,8 @@ Route::get('/api/v1/products/low-stock', [ProductController::class, 'apiLowStock
 Route::middleware('auth')->group(function () {
     Route::get('/', fn() => redirect()->route('products.index'));
 
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
     // Static product routes BEFORE resource
     Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
     Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
@@ -27,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
     Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
     Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
+    Route::get('/stock-transactions/summary', [StockTransactionController::class, 'summary'])->name('stock-transactions.summary');
     Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
     Route::post('/products/{product}/stock', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
     Route::post('/products/{product}/quick-adjust', [StockTransactionController::class, 'quickAdjust'])->name('stock-transactions.quick-adjust');
