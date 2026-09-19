@@ -16,6 +16,8 @@ class ProductController extends Controller
             $query->where(fn($q) => $q->where('sku', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%"));
         }
         if ($request->boolean('alert_only')) $query->belowReorderPoint();
+        $sortBy = $request->input('sort', 'stock_asc');
+        match ($sortBy) {
         match ($request->input('sort', 'stock_asc')) {
             'stock_desc' => $query->orderBy('stock_quantity', 'desc'),
             'name'       => $query->orderBy('name', 'asc'),
@@ -70,6 +72,22 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', '商品を削除しました');
     }
 
+    public function qrcode(Product $product, Request $request)
+    {
+        $fgHex = ltrim($request->input('color', '000000'), '#');
+        if (!preg_match('/^[0-9a-fA-F]{6}$/', $fgHex)) {
+            $fgHex = '000000';
+        }
+        $r = hexdec(substr($fgHex, 0, 2));
+        $g = hexdec(substr($fgHex, 2, 2));
+        $b = hexdec(substr($fgHex, 4, 2));
+
+        $svg = QrCode::format('svg')
+            ->size(200)
+            ->errorCorrection('M')
+            ->color($r, $g, $b)
+            ->generate(route('products.show', $product));
+
     public function qrcode(Product $product)
     {
         $svg = QrCode::format('svg')->size(200)->errorCorrection('M')->generate(route('products.show', $product));
@@ -79,12 +97,18 @@ class ProductController extends Controller
     public function qrcodeDownload(Product $product)
     {
         $png = QrCode::format('png')->size(300)->errorCorrection('M')->generate(route('products.show', $product));
+        return response($png, 200)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
         return response($png, 200)->header('Content-Type', 'image/png')->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
     }
 
     public function qrcodeSvgDownload(Product $product)
     {
         $svg = QrCode::format('svg')->size(300)->errorCorrection('M')->generate(route('products.show', $product));
+        return response($svg, 200)
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.svg"');
         return response($svg, 200)->header('Content-Type', 'image/svg+xml')->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.svg"');
     }
 
@@ -145,6 +169,7 @@ class ProductController extends Controller
     public function duplicate(Product $product)
     {
         $copy = $product->replicate();
+        $copy->sku  = $product->sku . '-copy-' . substr(uniqid(), -4);
         $copy->sku = $product->sku . '-copy-' . substr(uniqid(), -4);
         $copy->name = $product->name . '（コピー）';
         $copy->stock_quantity = 0;
@@ -156,6 +181,10 @@ class ProductController extends Controller
     {
         $q = $request->input('q', '');
         if (strlen($q) < 1) return response()->json([]);
+        return response()->json(
+            Product::where('sku', 'like', "%{$q}%")->orWhere('name', 'like', "%{$q}%")
+                ->orderBy('name')->limit(10)->get(['id', 'sku', 'name'])
+        );
         return response()->json(Product::where('sku', 'like', "%{$q}%")->orWhere('name', 'like', "%{$q}%")->orderBy('name')->limit(10)->get(['id', 'sku', 'name']));
     }
 
@@ -173,6 +202,8 @@ class ProductController extends Controller
 
     public function apiLowStock()
     {
+        $products = Product::belowReorderPoint()->orderBy('stock_quantity', 'asc')
+            ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
         $products = Product::belowReorderPoint()->orderBy('stock_quantity', 'asc')->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
         return response()->json(['data' => $products, 'total' => $products->count()]);
     }
