@@ -24,6 +24,9 @@ class StockTransactionController extends Controller
             $transaction = match ($type) {
                 StockTransactionType::IN => $this->stockService->stockIn($product, $request->integer('quantity'), $request->input('reason')),
                 StockTransactionType::OUT => $this->stockService->stockOut($product, $request->integer('quantity'), $request->input('reason')),
+            match ($type) {
+                StockTransactionType::IN     => $this->stockService->stockIn($product, $request->integer('quantity'), $request->input('reason')),
+                StockTransactionType::OUT    => $this->stockService->stockOut($product, $request->integer('quantity'), $request->input('reason')),
                 StockTransactionType::ADJUST => $this->stockService->adjust($product, $request->integer('quantity'), $request->input('reason')),
             };
             return redirect()->route('products.show', $product)->with('success', "{$type->label()}処理が完了しました");
@@ -43,6 +46,29 @@ class StockTransactionController extends Controller
         if ($request->filled('date_from')) $query->whereDate('created_at', '>=', $request->input('date_from'));
         if ($request->filled('date_to')) $query->whereDate('created_at', '<=', $request->input('date_to'));
         $transactions = $query->latest()->paginate(50);
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->input('type'));
+        }
+        if ($request->filled('product_id')) {
+            $query->where('product_id', $request->integer('product_id'));
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->input('date_to'));
+        }
+        if ($request->filled('keyword')) {
+            $kw = $request->input('keyword');
+            $query->whereHas('product', function ($q) use ($kw) {
+                $q->where('name', 'like', "%{$kw}%")
+                  ->orWhere('sku', 'like', "%{$kw}%");
+            });
+        }
+
+        $transactions = $query->latest()->paginate(50);
+
         return view('stock-transactions.index', compact('transactions'));
     }
 
@@ -56,6 +82,7 @@ class StockTransactionController extends Controller
             'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="stock_transactions_' . now()->format('Ymd_His') . '.csv"',
         ];
+        $headers = ['Content-Type' => 'text/csv; charset=UTF-8', 'Content-Disposition' => 'attachment; filename="stock_transactions_' . now()->format('Ymd_His') . '.csv"'];
         $callback = function () use ($transactions) {
             $out = fopen('php://output', 'w');
             fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));

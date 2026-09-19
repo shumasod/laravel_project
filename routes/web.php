@@ -12,6 +12,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
     Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    // Static product routes BEFORE resource
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    Route::get('/products/import', [ProductController::class, 'importForm'])->name('products.import.form');
+    Route::post('/products/import', [ProductController::class, 'importCsv'])->name('products.import');
 
     Route::resource('products', ProductController::class);
 
