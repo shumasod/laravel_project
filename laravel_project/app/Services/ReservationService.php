@@ -55,13 +55,14 @@ class ReservationService
                 'number_of_guests' => $numberOfGuests,
                 'check_in_date' => $checkIn,
                 'check_out_date' => $checkOut,
-                'status' => Reservation::STATUS_PROVISIONAL,
                 'total_amount' => $pricing['total_amount'],
                 'applied_discounts' => $pricing['applied_discounts'],
                 'price_breakdown' => $pricing['breakdown'],
                 'notes' => $data['notes'] ?? null,
                 'created_by_user_id' => $data['user_id'] ?? null,
             ]);
+            $reservation->status = Reservation::STATUS_PROVISIONAL;
+            $reservation->save();
 
             // 在庫を予約
             $reserved = $this->inventoryService->reserveInventory(
@@ -203,7 +204,12 @@ class ReservationService
                 $data['price_breakdown'] = $pricing['breakdown'];
             }
 
-            $reservation->update($data);
+            $allowedFields = [
+                'number_of_guests', 'check_in_date', 'check_out_date',
+                'total_amount', 'applied_discounts', 'price_breakdown',
+                'cancellation_reason', 'notes', 'updated_by_user_id',
+            ];
+            $reservation->update(array_intersect_key($data, array_flip($allowedFields)));
 
             if (isset($data['user_id'])) {
                 $reservation->updated_by_user_id = $data['user_id'];

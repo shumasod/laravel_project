@@ -18,6 +18,10 @@
 <div class="card mb-4">
     <div class="card-body">
         <form method="GET" action="{{ route('stock-transactions.index') }}" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">キーワード（商品名・SKU）</label>
+                <input type="text" name="keyword" class="form-control" placeholder="商品名またはSKU" value="{{ request('keyword') }}">
+            </div>
             <div class="col-md-2">
                 <label class="form-label fw-semibold">種別</label>
                 <select name="type" class="form-select">
@@ -47,6 +51,9 @@
                 <button type="submit" class="btn btn-primary w-100">絞り込み</button>
             </div>
             <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">絞り込み</button>
+            </div>
+            <div class="col-md-1">
                 <a href="{{ route('stock-transactions.index') }}" class="btn btn-secondary w-100">クリア</a>
             </div>
         </form>
