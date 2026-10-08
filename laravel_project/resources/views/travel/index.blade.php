@@ -268,6 +268,7 @@ keywordInput?.addEventListener('input', function() {
                 }
 
                 suggestDropdown.textContent = '';
+                suggestDropdown.innerHTML = '';
                 data.data.forEach(item => {
                     const a = document.createElement('a');
                     a.className = 'dropdown-item';

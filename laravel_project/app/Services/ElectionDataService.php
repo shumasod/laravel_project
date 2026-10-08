@@ -71,7 +71,7 @@ class ElectionDataService
             DB::beginTransaction();
 
             if (!file_exists($filePath)) {
-                throw new \Exception("ファイルが見つかりません: {$filePath}");
+                throw new \Exception("指定されたファイルが見つかりません");
             }
 
             $handle = fopen($filePath, 'r');
@@ -108,7 +108,7 @@ class ElectionDataService
 
             return [
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'CSVインポートに失敗しました',
                 'imported' => $imported,
             ];
         }
@@ -126,7 +126,7 @@ class ElectionDataService
             DB::beginTransaction();
 
             if (!file_exists($filePath)) {
-                throw new \Exception("ファイルが見つかりません: {$filePath}");
+                throw new \Exception("指定されたファイルが見つかりません");
             }
 
             $handle = fopen($filePath, 'r');
@@ -178,7 +178,7 @@ class ElectionDataService
 
             return [
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => '世論調査データインポートに失敗しました',
                 'imported' => $imported,
             ];
         }

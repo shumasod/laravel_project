@@ -19,8 +19,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// 顧客API (認証必須)
-Route::middleware('auth:sanctum')->prefix('customers')->group(function () {
+// 顧客API (管理者のみ・レート制限付き)
+Route::middleware(['auth:sanctum', 'can:admin', 'throttle:30,1'])->prefix('customers')->group(function () {
     // 顧客一覧取得
     Route::get('/', function (Request $request) {
         $validated = $request->validate([
