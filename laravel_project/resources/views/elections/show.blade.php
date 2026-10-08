@@ -362,6 +362,12 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
                     td.textContent = val;
                     tr.appendChild(td);
                 });
+                const tdRange = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
+                badge.textContent = result.within_range ? 'Yes' : 'No';
+                tdRange.appendChild(badge);
+                tr.appendChild(tdRange);
                 const tdBadge = document.createElement('td');
                 const badge = document.createElement('span');
                 badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
@@ -372,6 +378,11 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
             }
             table.appendChild(tbody);
             container.appendChild(table);
+
+            const p = document.createElement('p');
+            p.className = 'text-muted';
+            p.textContent = `平均誤差: ${Number(data.data.average_error)}議席`;
+            container.appendChild(p);
 
             const p = document.createElement('p');
             p.className = 'text-muted';
