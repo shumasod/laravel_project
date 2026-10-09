@@ -11,6 +11,27 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('sku', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->boolean('alert_only')) {
+            $query->belowReorderPoint();
+        }
+
+        $sortBy = $request->input('sort', 'stock_asc');
+        switch ($sortBy) {
+            case 'stock_asc': $query->orderBy('stock_quantity', 'asc'); break;
+            case 'stock_desc': $query->orderBy('stock_quantity', 'desc'); break;
+            case 'name': $query->orderBy('name', 'asc'); break;
+        }
+
+        $products = $query->paginate(20);
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(fn($q) => $q->where('sku', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%"));
@@ -114,6 +135,29 @@ class ProductController extends Controller
 
     public function label(Product $product) { return view('products.qr-label', compact('product')); }
 
+    public function qrAll()
+    {
+        $products = Product::orderBy('name')->get();
+        return view('products.qr-all', compact('products'));
+    }
+
+    public function alertDashboard()
+    {
+        $alertProducts = Product::belowReorderPoint()
+            ->orderBy('stock_quantity', 'asc')
+            ->get()
+            ->map(function ($p) {
+                $p->deficit = $p->reorder_point - $p->stock_quantity;
+                return $p;
+            });
+
+        $stats = [
+            'alert_count'   => $alertProducts->count(),
+            'total_deficit' => $alertProducts->sum('deficit'),
+            'most_critical' => $alertProducts->first(),
+        ];
+
+        return view('products.alert-dashboard', compact('alertProducts', 'stats'));
     public function importForm()
     {
         return view('products.import');
@@ -161,6 +205,13 @@ class ProductController extends Controller
 
     public function reorderList()
     {
+        $products = Product::belowReorderPoint()
+            ->orderBy('stock_quantity', 'asc')
+            ->get()
+            ->map(function ($p) {
+                $p->order_quantity = max(0, $p->reorder_point * 2 - $p->stock_quantity);
+                return $p;
+            });
         $products = Product::belowReorderPoint()->orderBy('stock_quantity', 'asc')->get()
             ->map(fn($p) => tap($p, fn($p) => $p->order_quantity = max(0, $p->reorder_point * 2 - $p->stock_quantity)));
         return view('products.reorder-list', compact('products'));
@@ -181,6 +232,10 @@ class ProductController extends Controller
     {
         $q = $request->input('q', '');
         if (strlen($q) < 1) return response()->json([]);
+        $products = Product::where('sku', 'like', "%{$q}%")
+            ->orWhere('name', 'like', "%{$q}%")
+            ->orderBy('name')->limit(10)->get(['id', 'sku', 'name']);
+        return response()->json($products);
         return response()->json(
             Product::where('sku', 'like', "%{$q}%")->orWhere('name', 'like', "%{$q}%")
                 ->orderBy('name')->limit(10)->get(['id', 'sku', 'name'])
@@ -202,6 +257,9 @@ class ProductController extends Controller
 
     public function apiLowStock()
     {
+        $products = Product::belowReorderPoint()
+            ->orderBy('stock_quantity', 'asc')
+            ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
         $products = Product::belowReorderPoint()->orderBy('stock_quantity', 'asc')
             ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
         $products = Product::belowReorderPoint()->orderBy('stock_quantity', 'asc')->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
