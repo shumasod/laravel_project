@@ -378,11 +378,14 @@ class TravelController extends Controller
      */
     public function reviews(Request $request, int $accommodationId): JsonResponse
     {
+        $request->validate([
         $validated = $request->validate([
             'per_page' => 'nullable|integer|min:1|max:50',
             'sort'     => 'nullable|in:newest,rating_high,rating_low,helpful',
         ]);
 
+        $perPage = $request->integer('per_page', 10);
+        $sort = $request->input('sort', 'newest');
         $perPage = $validated['per_page'] ?? 10;
         $sort = $validated['sort'] ?? 'newest';
 
