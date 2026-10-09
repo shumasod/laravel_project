@@ -16,6 +16,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/qr-all', [ProductController::class, 'qrAll'])->name('products.qr-all');
     Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
     Route::get('/products/alerts', [ProductController::class, 'alertDashboard'])->name('products.alerts');
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    // Static product routes BEFORE resource
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    Route::get('/products/import', [ProductController::class, 'importForm'])->name('products.import.form');
+    Route::post('/products/import', [ProductController::class, 'importCsv'])->name('products.import');
 
     Route::resource('products', ProductController::class);
 
@@ -29,6 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
     Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
     Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
+    Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
+    Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
+    Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
+    Route::get('/stock-transactions/summary', [StockTransactionController::class, 'summary'])->name('stock-transactions.summary');
     Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
     Route::post('/products/{product}/stock', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
     Route::post('/products/{product}/quick-adjust', [StockTransactionController::class, 'quickAdjust'])->name('stock-transactions.quick-adjust');
