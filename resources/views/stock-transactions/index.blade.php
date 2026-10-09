@@ -40,6 +40,17 @@
                 <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
             </div>
             <div class="col-md-2">
+                <label class="form-label fw-semibold">表示件数</label>
+                <select name="per_page" class="form-select">
+                    @foreach([25, 50, 100] as $n)
+                    <option value="{{ $n }}" @selected($perPage === $n)>{{ $n }}件</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">絞り込み</button>
+            </div>
+            <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">絞り込み</button>
             </div>
             <div class="col-md-1">
