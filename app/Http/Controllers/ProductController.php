@@ -38,6 +38,14 @@ class ProductController extends Controller
         }
 
         $products = $query->paginate(20);
+
+        $stats = [
+            'total'       => Product::count(),
+            'alert_count' => Product::belowReorderPoint()->count(),
+            'total_stock' => Product::sum('stock_quantity'),
+        ];
+
+        return view('products.index', compact('products', 'stats'));
         return view('products.index', compact('products'));
     }
 
@@ -82,6 +90,9 @@ class ProductController extends Controller
             'stock_quantity' => ['required', 'integer', 'min:0'],
             'reorder_point'  => ['required', 'integer', 'min:0'],
         ]);
+
+        Product::create($validated);
+
         Product::create($validated);
         return redirect()->route('products.index')->with('success', '商品を登録しました');
     }
@@ -106,6 +117,9 @@ class ProductController extends Controller
             'description'   => ['nullable', 'string'],
             'reorder_point' => ['required', 'integer', 'min:0'],
         ]);
+
+        $product->update($validated);
+
         $product->update($validated);
         return redirect()->route('products.index')->with('success', '商品情報を更新しました');
     }
@@ -161,6 +175,10 @@ class ProductController extends Controller
     {
         $url = route('products.show', $product);
         $svg = QrCode::format('svg')->size(300)->errorCorrection('M')->generate($url);
+        $filename = 'qrcode_' . $product->sku . '.svg';
+        return response($svg, 200)
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
         return response($svg, 200)
             ->header('Content-Type', 'image/svg+xml')
             ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.svg"');
@@ -283,6 +301,12 @@ class ProductController extends Controller
         if (strlen($q) < 1) {
             return response()->json([]);
         }
+        $products = Product::where('sku', 'like', "%{$q}%")
+            ->orWhere('name', 'like', "%{$q}%")
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id', 'sku', 'name']);
+        return response()->json($products);
         if (strlen($q) < 1) return response()->json([]);
         $products = Product::where('sku', 'like', "%{$q}%")
             ->orWhere('name', 'like', "%{$q}%")
@@ -298,6 +322,23 @@ class ProductController extends Controller
     public function apiSearch(Request $request)
     {
         $query = Product::query();
+
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sq) use ($q) {
+                $sq->where('sku', 'like', "%{$q}%")
+                   ->orWhere('name', 'like', "%{$q}%");
+            });
+        }
+
+        if ($request->boolean('alert_only')) {
+            $query->belowReorderPoint();
+        }
+
+        $products = $query->orderBy('name')
+            ->limit(100)
+            ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
+
         if ($request->filled('q')) {
             $q = $request->input('q');
             $query->where(function ($sq) use ($q) {
