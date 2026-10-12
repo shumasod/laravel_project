@@ -26,6 +26,33 @@ class ProductController extends Controller
 
         $sortBy = $request->input('sort', 'stock_asc');
         switch ($sortBy) {
+            case 'stock_asc':
+                $query->orderBy('stock_quantity', 'asc');
+                break;
+            case 'stock_desc':
+                $query->orderBy('stock_quantity', 'desc');
+                break;
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+        }
+
+        $products = $query->paginate(20);
+
+        $stats = [
+            'total'       => Product::count(),
+            'alert_count' => Product::belowReorderPoint()->count(),
+            'total_stock' => Product::sum('stock_quantity'),
+        ];
+
+        return view('products.index', compact('products', 'stats'));
+        return view('products.index', compact('products'));
+    }
+
+    public function create()
+    {
+        return view('products.create');
+    }
             case 'stock_asc': $query->orderBy('stock_quantity', 'asc'); break;
             case 'stock_desc': $query->orderBy('stock_quantity', 'desc'); break;
             case 'name': $query->orderBy('name', 'asc'); break;
@@ -63,6 +90,9 @@ class ProductController extends Controller
             'stock_quantity' => ['required', 'integer', 'min:0'],
             'reorder_point'  => ['required', 'integer', 'min:0'],
         ]);
+
+        Product::create($validated);
+
         Product::create($validated);
         return redirect()->route('products.index')->with('success', '商品を登録しました');
     }
@@ -73,6 +103,10 @@ class ProductController extends Controller
         return view('products.show', compact('product', 'transactions'));
     }
 
+    public function edit(Product $product)
+    {
+        return view('products.edit', compact('product'));
+    }
     public function edit(Product $product) { return view('products.edit', compact('product')); }
 
     public function update(Request $request, Product $product)
@@ -83,6 +117,9 @@ class ProductController extends Controller
             'description'   => ['nullable', 'string'],
             'reorder_point' => ['required', 'integer', 'min:0'],
         ]);
+
+        $product->update($validated);
+
         $product->update($validated);
         return redirect()->route('products.index')->with('success', '商品情報を更新しました');
     }
@@ -93,6 +130,10 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', '商品を削除しました');
     }
 
+    public function qrcode(Product $product)
+    {
+        $url = route('products.show', $product);
+        $svg = QrCode::format('svg')->size(200)->errorCorrection('M')->generate($url);
     public function qrcode(Product $product, Request $request)
     {
         $fgHex = ltrim($request->input('color', '000000'), '#');
@@ -117,6 +158,12 @@ class ProductController extends Controller
 
     public function qrcodeDownload(Product $product)
     {
+        $url = route('products.show', $product);
+        $png = QrCode::format('png')->size(300)->errorCorrection('M')->generate($url);
+        $filename = 'qrcode_' . $product->sku . '.png';
+        return response($png, 200)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
         $png = QrCode::format('png')->size(300)->errorCorrection('M')->generate(route('products.show', $product));
         return response($png, 200)
             ->header('Content-Type', 'image/png')
@@ -126,6 +173,21 @@ class ProductController extends Controller
 
     public function qrcodeSvgDownload(Product $product)
     {
+        $url = route('products.show', $product);
+        $svg = QrCode::format('svg')->size(300)->errorCorrection('M')->generate($url);
+        $filename = 'qrcode_' . $product->sku . '.svg';
+        return response($svg, 200)
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        return response($svg, 200)
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.svg"');
+    }
+
+    public function label(Product $product)
+    {
+        return view('products.qr-label', compact('product'));
+    }
         $svg = QrCode::format('svg')->size(300)->errorCorrection('M')->generate(route('products.show', $product));
         return response($svg, 200)
             ->header('Content-Type', 'image/svg+xml')
@@ -221,6 +283,11 @@ class ProductController extends Controller
     {
         $copy = $product->replicate();
         $copy->sku  = $product->sku . '-copy-' . substr(uniqid(), -4);
+        $copy->name = $product->name . '（コピー）';
+        $copy->stock_quantity = 0;
+        $copy->save();
+        return redirect()->route('products.edit', $copy)
+            ->with('success', '商品を複製しました。内容を確認して保存してください。');
         $copy->sku = $product->sku . '-copy-' . substr(uniqid(), -4);
         $copy->name = $product->name . '（コピー）';
         $copy->stock_quantity = 0;
@@ -231,6 +298,15 @@ class ProductController extends Controller
     public function suggest(Request $request)
     {
         $q = $request->input('q', '');
+        if (strlen($q) < 1) {
+            return response()->json([]);
+        }
+        $products = Product::where('sku', 'like', "%{$q}%")
+            ->orWhere('name', 'like', "%{$q}%")
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id', 'sku', 'name']);
+        return response()->json($products);
         if (strlen($q) < 1) return response()->json([]);
         $products = Product::where('sku', 'like', "%{$q}%")
             ->orWhere('name', 'like', "%{$q}%")
@@ -246,8 +322,32 @@ class ProductController extends Controller
     public function apiSearch(Request $request)
     {
         $query = Product::query();
+
         if ($request->filled('q')) {
             $q = $request->input('q');
+            $query->where(function ($sq) use ($q) {
+                $sq->where('sku', 'like', "%{$q}%")
+                   ->orWhere('name', 'like', "%{$q}%");
+            });
+        }
+
+        if ($request->boolean('alert_only')) {
+            $query->belowReorderPoint();
+        }
+
+        $products = $query->orderBy('name')
+            ->limit(100)
+            ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
+
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sq) use ($q) {
+                $sq->where('sku', 'like', "%{$q}%")->orWhere('name', 'like', "%{$q}%");
+            });
+        }
+        if ($request->boolean('alert_only')) {
+            $query->belowReorderPoint();
+        }
             $query->where(fn($sq) => $sq->where('sku', 'like', "%{$q}%")->orWhere('name', 'like', "%{$q}%"));
         }
         if ($request->boolean('alert_only')) $query->belowReorderPoint();
