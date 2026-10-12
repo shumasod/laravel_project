@@ -2,6 +2,12 @@
 
 // ===== 新機能のテスト用ルート =====
 // このファイルのルートを web.php に追加してください
+// IMPORTANT: This file must only be included in local/testing environments.
+// These routes create and modify real database records (payments, refunds, reviews).
+
+if (!app()->environment('local', 'testing')) {
+    return;
+}
 
 // 決済テスト
 Route::get('/test-payment', function (PaymentService $paymentService) {

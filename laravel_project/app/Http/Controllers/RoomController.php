@@ -5,23 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Room;
 use App\Models\Accommodation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class RoomController extends Controller
 {
     public function index()
     {
+        Gate::authorize('admin');
         $rooms = Room::with('accommodation')->paginate(10);
         return view('rooms.index', compact('rooms'));
     }
 
     public function create()
     {
+        Gate::authorize('admin');
         $accommodations = Accommodation::all();
         return view('rooms.create', compact('accommodations'));
     }
 
     public function store(Request $request)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'accommodation_id' => 'required|exists:accommodations,id',
             'room_number' => 'required|string|max:255',
@@ -40,18 +44,21 @@ class RoomController extends Controller
 
     public function show(Room $room)
     {
+        Gate::authorize('admin');
         $room->load('accommodation', 'reservations');
         return view('rooms.show', compact('room'));
     }
 
     public function edit(Room $room)
     {
+        Gate::authorize('admin');
         $accommodations = Accommodation::all();
         return view('rooms.edit', compact('room', 'accommodations'));
     }
 
     public function update(Request $request, Room $room)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'accommodation_id' => 'required|exists:accommodations,id',
             'room_number' => 'required|string|max:255',
@@ -70,6 +77,7 @@ class RoomController extends Controller
 
     public function destroy(Room $room)
     {
+        Gate::authorize('admin');
         $room->delete();
 
         return redirect()->route('rooms.index')
