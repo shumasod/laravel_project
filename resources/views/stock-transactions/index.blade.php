@@ -40,6 +40,9 @@
                 <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
             </div>
             <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">絞り込み</button>
+            </div>
+            <div class="col-md-2">
                 <label class="form-label fw-semibold">表示件数</label>
                 <select name="per_page" class="form-select">
                     @foreach([25, 50, 100] as $n)
@@ -65,6 +68,9 @@
         <table class="table table-hover mb-0">
             <thead>
                 <tr>
+                    <th>日時</th>
+                    <th>商品</th>
+                    <th>SKU</th>
                     <th>日時</th><th>商品</th><th>SKU</th>
                     <th class="text-center">種別</th>
                     <th class="text-end">数量</th>
@@ -75,6 +81,20 @@
                 @forelse($transactions as $tx)
                 <tr>
                     <td class="text-muted small">{{ $tx->created_at->format('Y/m/d H:i') }}</td>
+                    <td>
+                        <a href="{{ route('products.show', $tx->product) }}" class="text-decoration-none">
+                            {{ $tx->product->name }}
+                        </a>
+                    </td>
+                    <td><code>{{ $tx->product->sku }}</code></td>
+                    <td class="text-center">
+                        @if($tx->type->value === 'IN')
+                            <span class="badge bg-success">入庫</span>
+                        @elseif($tx->type->value === 'OUT')
+                            <span class="badge bg-danger">出庫</span>
+                        @else
+                            <span class="badge bg-secondary">調整</span>
+                        @endif
                     <td><a href="{{ route('products.show', $tx->product) }}" class="text-decoration-none">{{ $tx->product->name }}</a></td>
                     <td><code>{{ $tx->product->sku }}</code></td>
                     <td class="text-center">
@@ -86,11 +106,18 @@
                     <td class="text-muted small">{{ $tx->reason ?? '-' }}</td>
                 </tr>
                 @empty
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">履歴がありません</td>
+                </tr>
                 <tr><td colspan="6" class="text-center text-muted py-4">履歴がありません</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="mt-3">
+    {{ $transactions->withQueryString()->links() }}
 </div>
 <div class="mt-3">{{ $transactions->withQueryString()->links() }}</div>
 @endsection

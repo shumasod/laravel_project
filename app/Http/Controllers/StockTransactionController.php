@@ -32,6 +32,8 @@ class StockTransactionController extends Controller
                 StockTransactionType::ADJUST => $this->stockService->adjust($product, $quantity, $reason),
             };
 
+            return redirect()
+                ->route('products.show', $product)
             return redirect()->route('products.show', $product)
                 ->with('success', "{$type->label()}処理が完了しました");
 
@@ -73,6 +75,15 @@ class StockTransactionController extends Controller
         if ($request->filled('type')) {
             $query->where('type', $request->input('type'));
         }
+
+        if ($request->filled('product_id')) {
+            $query->where('product_id', $request->integer('product_id'));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        }
+
         if ($request->filled('product_id')) {
             $query->where('product_id', $request->integer('product_id'));
         }
@@ -104,6 +115,21 @@ class StockTransactionController extends Controller
     public function export(Request $request)
     {
         $query = \App\Models\StockTransaction::query()->with('product');
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->input('type'));
+        }
+        if ($request->filled('product_id')) {
+            $query->where('product_id', $request->integer('product_id'));
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->input('date_to'));
+        }
+
+        $transactions = $query->latest()->get();
 
         if ($request->filled('type')) $query->where('type', $request->input('type'));
         if ($request->filled('product_id')) $query->where('product_id', $request->integer('product_id'));
@@ -157,6 +183,11 @@ class StockTransactionController extends Controller
         $entries = $request->input('entries', []);
         $count = 0;
         foreach ($entries as $entry) {
+            if (empty($entry['product_id']) || empty($entry['quantity']) || (int)$entry['quantity'] <= 0) {
+                continue;
+            }
+            $product = Product::find((int)$entry['product_id']);
+            if (!$product) { continue; }
         $count = 0;
         foreach ($request->input('entries', []) as $entry) {
             if (empty($entry['product_id']) || empty($entry['quantity']) || (int)$entry['quantity'] <= 0) continue;
