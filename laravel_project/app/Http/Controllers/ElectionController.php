@@ -12,6 +12,8 @@ use App\Services\ElectionDataService;
 use App\Services\ElectionAnalysisService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ElectionController extends Controller
@@ -141,6 +143,8 @@ class ElectionController extends Controller
      */
     public function predict(Request $request, Election $election): JsonResponse
     {
+        Gate::authorize('admin');
+
         try {
             $result = $this->analysisService->predictSeats($election->id);
 
@@ -150,9 +154,10 @@ class ElectionController extends Controller
                 'data' => $result,
             ]);
         } catch (\Exception $e) {
+            Log::error('Election seat prediction failed', ['election_id' => $election->id, 'error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
-                'message' => '予測中にエラーが発生しました: ' . $e->getMessage(),
+                'message' => '予測中にエラーが発生しました。',
             ], 500);
         }
     }
@@ -241,6 +246,8 @@ class ElectionController extends Controller
      */
     public function storePollData(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'party_id' => 'required|exists:political_parties,id',
             'election_id' => 'nullable|exists:elections,id',
@@ -254,7 +261,7 @@ class ElectionController extends Controller
             'response_rate' => 'nullable|numeric|min:0|max:100',
             'demographic_breakdown' => 'nullable|array',
             'regional_breakdown' => 'nullable|array',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $pollData = PollData::create($validated);
@@ -271,6 +278,11 @@ class ElectionController extends Controller
      */
     public function partyTrend(Request $request, PoliticalParty $party): JsonResponse
     {
+        $request->validate([
+            'start_date' => 'nullable|date|after_or_equal:1900-01-01',
+            'end_date'   => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $startDate = Carbon::parse($request->input('start_date', '2010-01-01'));
         $endDate = Carbon::parse($request->input('end_date', now()));
 
@@ -319,6 +331,8 @@ class ElectionController extends Controller
      */
     public function storeParty(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'name' => 'required|string|max:100|unique:political_parties,name',
             'short_name' => 'nullable|string|max:20',
@@ -358,6 +372,8 @@ class ElectionController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'name' => 'required|string|max:200',
             'type' => 'required|in:house_of_representatives,house_of_councillors',
@@ -369,7 +385,7 @@ class ElectionController extends Controller
             'voter_turnout' => 'nullable|numeric|min:0|max:100',
             'total_voters' => 'nullable|integer|min:0',
             'total_votes' => 'nullable|integer|min:0',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $election = Election::create($validated);
@@ -386,6 +402,8 @@ class ElectionController extends Controller
      */
     public function storeResult(Request $request, Election $election): JsonResponse
     {
+        Gate::authorize('admin');
+
         $validated = $request->validate([
             'district_id' => 'required|exists:election_districts,id',
             'party_id' => 'required|exists:political_parties,id',
@@ -395,7 +413,7 @@ class ElectionController extends Controller
             'seats_won' => 'required|integer|min:0',
             'is_winner' => 'boolean',
             'rank' => 'nullable|integer|min:1',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $result = $election->results()->create($validated);
@@ -412,9 +430,11 @@ class ElectionController extends Controller
      */
     public function importCsv(Request $request): JsonResponse
     {
+        Gate::authorize('admin');
+
         $request->validate([
-            'file'          => 'required|file|mimes:csv,txt|max:10240',
-            'type'          => 'required|in:election,poll',
+            'file' => 'required|file|mimes:csv,txt|max:10240',
+            'type' => 'required|in:election,poll',
             'election_type' => 'required_if:type,election|in:house_of_representatives,house_of_councillors',
         ]);
 
@@ -478,7 +498,7 @@ class ElectionController extends Controller
             // データ行
             foreach ($data['results'] as $partyName => $result) {
                 fputcsv($file, [
-                    $partyName,
+                    $this->sanitizeCsvCell((string) $partyName),
                     $result['total_seats'],
                     $result['total_votes'],
                     '-',
@@ -490,5 +510,14 @@ class ElectionController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    private function sanitizeCsvCell(string $value): string
+    {
+        if ($value !== '' && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "\t" . $value;
+        }
+
+        return $value;
     }
 }

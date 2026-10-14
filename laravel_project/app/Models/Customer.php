@@ -26,6 +26,9 @@ class Customer extends Model
         'last_stay_date',
         'total_stays',
         'total_spent',
+        'total_stays',
+        'total_spent',
+        'last_stay_date',
         'deletion_requested',
         'deletion_requested_at',
     ];
