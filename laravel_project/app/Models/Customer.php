@@ -23,6 +23,9 @@ class Customer extends Model
     ];
 
     protected $guarded = [
+        'last_stay_date',
+        'total_stays',
+        'total_spent',
         'total_stays',
         'total_spent',
         'last_stay_date',
