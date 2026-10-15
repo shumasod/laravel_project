@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('reviews', ReviewController::class);
 
     // ===== 在庫管理 =====
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
     Route::resource('products', ProductController::class);
     Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
     Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
