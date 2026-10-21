@@ -1,6 +1,6 @@
 # Core Dependencies
 python-dotenv==1.2.4
-pydantic==2.14.0
+pydantic==2.14.1
 pydantic-settings==2.16.0
 
 # Database
