@@ -16,6 +16,9 @@ use App\Http\Controllers\EventController;
 
 Route::get('/', fn () => view('welcome'));
 
+// 公開JSON API（認証不要）
+Route::get('/api/v1/products/low-stock', [ProductController::class, 'apiLowStock'])->name('api.products.low-stock');
+
 Route::middleware('auth')->group(function () {
     Route::resource('accommodations', AccommodationController::class);
     Route::resource('rooms', RoomController::class);

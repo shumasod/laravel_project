@@ -193,6 +193,18 @@ class ProductController extends Controller
         return response($png, 200)
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
+    }
+
+    public function apiLowStock()
+    {
+        $products = Product::belowReorderPoint()
+            ->orderBy('stock_quantity', 'asc')
+            ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
+
+        return response()->json([
+            'data'  => $products,
+            'total' => $products->count(),
+        ]);
         return response($png, 200)->header('Content-Type', 'image/png')->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
     }
 
