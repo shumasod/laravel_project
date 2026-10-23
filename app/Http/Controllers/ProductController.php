@@ -11,6 +11,11 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(fn ($q) => $q->where('sku', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%"));
+        }
+        if ($request->boolean('alert_only')) { $query->belowReorderPoint(); }
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -71,6 +76,7 @@ class ProductController extends Controller
             'name'       => $query->orderBy('name', 'asc'),
             default      => $query->orderBy('stock_quantity', 'asc'),
         };
+        return view('products.index', ['products' => $query->paginate(20)]);
         $products = $query->paginate(20);
 
         $recentlyUpdated = Product::orderBy('updated_at', 'desc')->limit(5)->get();
@@ -83,6 +89,13 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        Product::create($request->validate([
+            'sku' => ['required','string','max:100','unique:products'],
+            'name' => ['required','string','max:255'],
+            'description' => ['nullable','string'],
+            'stock_quantity' => ['required','integer','min:0'],
+            'reorder_point'  => ['required','integer','min:0'],
+        ]));
         $validated = $request->validate([
             'sku'            => ['required', 'string', 'max:100', 'unique:products'],
             'name'           => ['required', 'string', 'max:255'],
@@ -99,6 +112,12 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
+        return view('products.show', [
+            'product' => $product,
+            'transactions' => $product->stockTransactions()->latest()->paginate(50),
+        ]);
+    }
+
         $transactions = $product->stockTransactions()->latest()->paginate(50);
         return view('products.show', compact('product', 'transactions'));
     }
@@ -111,6 +130,12 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $product->update($request->validate([
+            'sku' => ['required','string','max:100','unique:products,sku,'.$product->id],
+            'name' => ['required','string','max:255'],
+            'description' => ['nullable','string'],
+            'reorder_point' => ['required','integer','min:0'],
+        ]));
         $validated = $request->validate([
             'sku'           => ['required', 'string', 'max:100', 'unique:products,sku,' . $product->id],
             'name'          => ['required', 'string', 'max:255'],
@@ -168,6 +193,18 @@ class ProductController extends Controller
         return response($png, 200)
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
+    }
+
+    public function apiLowStock()
+    {
+        $products = Product::belowReorderPoint()
+            ->orderBy('stock_quantity', 'asc')
+            ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
+
+        return response()->json([
+            'data'  => $products,
+            'total' => $products->count(),
+        ]);
         return response($png, 200)->header('Content-Type', 'image/png')->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
     }
 
@@ -298,6 +335,19 @@ class ProductController extends Controller
     public function suggest(Request $request)
     {
         $q = $request->input('q', '');
+        if (mb_strlen($q) < 1) {
+            return response()->json([]);
+        }
+
+        $products = Product::where(function ($query) use ($q) {
+                $query->where('sku', 'like', "%{$q}%")
+                      ->orWhere('name', 'like', "%{$q}%");
+            })
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id', 'sku', 'name']);
+
+        return response()->json($products);
         if (strlen($q) < 1) {
             return response()->json([]);
         }
