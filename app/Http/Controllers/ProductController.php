@@ -195,6 +195,8 @@ class ProductController extends Controller
             ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
     }
 
+    public function qrcodeSvgDownload(Product $product)
+    {
     public function apiLowStock()
     {
         $products = Product::belowReorderPoint()
