@@ -25,11 +25,11 @@ class AccommodationController extends Controller
     {
         Gate::authorize('admin');
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string',
-            'description' => 'nullable|string',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'name'        => 'required|string|max:255',
+            'address'     => 'required|string|max:500',
+            'description' => 'nullable|string|max:5000',
+            'phone'       => 'nullable|string|max:20',
+            'email'       => 'nullable|email|max:255',
         ]);
 
         Accommodation::create($validated);
@@ -55,11 +55,11 @@ class AccommodationController extends Controller
     {
         Gate::authorize('admin');
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string',
-            'description' => 'nullable|string',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'name'        => 'required|string|max:255',
+            'address'     => 'required|string|max:500',
+            'description' => 'nullable|string|max:5000',
+            'phone'       => 'nullable|string|max:20',
+            'email'       => 'nullable|email|max:255',
         ]);
 
         $accommodation->update($validated);
