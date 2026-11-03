@@ -356,6 +356,10 @@ class ElectionController extends Controller
      */
     public function districts(Request $request): JsonResponse
     {
+        $request->validate([
+            'house_type'    => 'nullable|in:house_of_representatives,house_of_councillors',
+            'district_type' => 'nullable|in:single_seat,proportional',
+        ]);
         $houseType = $request->input('house_type');
         $districtType = $request->input('district_type');
 
