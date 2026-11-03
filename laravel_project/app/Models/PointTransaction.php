@@ -18,12 +18,6 @@ class PointTransaction extends Model
         'expire_date',
     ];
 
-    protected $guarded = [
-        'type',
-        'points',
-        'balance_after',
-    ];
-
     protected $casts = [
         'expire_date' => 'date',
     ];
