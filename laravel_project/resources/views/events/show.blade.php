@@ -294,7 +294,7 @@
 <script>
 function toggleFavorite() {
     const btn = document.getElementById('favoriteBtn');
-    const eventId = '{{ $event["id"] }}';
+    const eventId = @json($event['id'] ?? '');
     const eventData = @json($event);
     const isActive = btn.classList.contains('active');
 
