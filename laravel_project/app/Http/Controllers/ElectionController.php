@@ -227,6 +227,13 @@ class ElectionController extends Controller
      */
     public function pollData(Request $request): JsonResponse
     {
+        $request->validate([
+            'election_id' => 'nullable|integer|exists:elections,id',
+            'source'      => 'nullable|string|max:100',
+            'start_date'  => 'nullable|date',
+            'end_date'    => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $electionId = $request->input('election_id');
         $source = $request->input('source');
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : null;
