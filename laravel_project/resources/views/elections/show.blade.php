@@ -368,33 +368,8 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
                 badge.textContent = result.within_range ? 'Yes' : 'No';
                 tdRange.appendChild(badge);
                 tr.appendChild(tdRange);
-                const tdBadge = document.createElement('td');
-                const badge = document.createElement('span');
-                badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
-                badge.textContent = result.within_range ? 'Yes' : 'No';
-                tdBadge.appendChild(badge);
-                tr.appendChild(tdBadge);
                 tbody.appendChild(tr);
             }
-            table.appendChild(tbody);
-            container.appendChild(table);
-
-            const p = document.createElement('p');
-            p.className = 'text-muted';
-            p.textContent = `平均誤差: ${Number(data.data.average_error)}議席`;
-            container.appendChild(p);
-
-            const p = document.createElement('p');
-            p.className = 'text-muted';
-            p.textContent = '平均誤差: ' + data.data.average_error + '議席';
-            container.appendChild(p);
-                const withinBadge = result.within_range
-                    ? '<span class="badge bg-success">Yes</span>'
-                    : '<span class="badge bg-danger">No</span>';
-                tr.innerHTML = `<td>${escapeHtml(party)}</td><td>${escapeHtml(result.predicted)}</td><td>${escapeHtml(result.actual)}</td><td>${escapeHtml(result.error)}</td><td>${withinBadge}</td>`;
-                tbody.appendChild(tr);
-            }
-
             table.appendChild(tbody);
             container.appendChild(table);
 
