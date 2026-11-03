@@ -51,16 +51,6 @@ class Accommodation extends Model
         'display_priority',
     ];
 
-    protected $guarded = [
-        'review_score',
-        'review_count',
-        'cleanliness_score',
-        'service_score',
-        'location_score',
-        'facility_score',
-        'value_score',
-    ];
-
     protected $casts = [
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
