@@ -71,46 +71,27 @@ Route::middleware('auth')->group(function () {
 
 // ===== 旅行検索サイト =====
 
-// トップ・検索 (rate limited)
+// 公開エンドポイント (rate limited)
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
     Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
     Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');
+    Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
 });
-Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
-Route::get('/travel/search', [TravelController::class, 'search'])->middleware('throttle:30,1')->name('travel.search');
-Route::get('/travel/suggest', [TravelController::class, 'suggest'])->middleware('throttle:60,1')->name('travel.suggest');
 
 // 施設詳細
 Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->name('travel.show');
 Route::get('/travel/accommodations/{id}/plans', [TravelController::class, 'searchPlans'])->name('travel.plans');
 Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'reviews'])->name('travel.reviews');
 
-// 予約フロー (認証必須)
-Route::middleware('auth')->group(function () {
+// 予約フロー・お気に入り (認証必須 + rate limited)
+Route::middleware(['auth', 'throttle:20,1'])->group(function () {
     Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
     Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
-    Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
-});
-
-// お気に入り (認証必須)
-Route::middleware('auth')->group(function () {
+    Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->middleware('throttle:5,1')->name('travel.booking.complete');
     Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
     Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
 });
-// 予約フロー (レート制限付き)
-Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
-Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm')->middleware('throttle:20,1');
-Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete')->middleware('throttle:20,1');
-Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->middleware('throttle:10,1')->name('travel.booking.confirm');
-Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->middleware('throttle:5,1')->name('travel.booking.complete');
-
-// お気に入り
-Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add')->middleware('throttle:30,1');
-Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove')->middleware('throttle:30,1');
-
-// エリアAPI
-Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
 
 // ===== イベント検索システム =====
 
