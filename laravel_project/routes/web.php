@@ -151,43 +151,24 @@ Route::get('/api/events/search', [EventController::class, 'apiSearch'])->middlew
 // 公開読み取りルート
 Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
 Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
-Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store')->middleware('throttle:10,1');
-Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
-
-// 議席予測 (計算コストが高い)
-Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict')->middleware('throttle:5,1');
 Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
 Route::get('/elections/{election}/predictions', [ElectionController::class, 'getPredictions'])->name('elections.predictions');
 Route::get('/elections/{election}/validate-accuracy', [ElectionController::class, 'validateAccuracy'])->name('elections.validate-accuracy');
 Route::get('/elections-compare', [ElectionController::class, 'compare'])->name('elections.compare');
-
-// 選挙結果登録
-Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store')->middleware('throttle:30,1');
-
-// 世論調査データ
-Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
-Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store')->middleware('throttle:30,1');
-
-// 政党関連
-Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
-Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store')->middleware('throttle:10,1');
+Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
 Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
 Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
 Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])->name('parties.trend');
 Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
 
-// インポート・エクスポート (CSVインポートは特に厳しく制限)
-Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv')->middleware('throttle:5,1');
-Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
-
-// 管理者のみ書き込み可能なルート
+// 管理者のみ書き込み可能なルート (throttle + auth + admin)
 Route::middleware(['auth', 'can:admin'])->group(function () {
-    Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
-    Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
-    Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
-    Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
-    Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
-    Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
+    Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store')->middleware('throttle:10,1');
+    Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store')->middleware('throttle:30,1');
+    Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict')->middleware('throttle:5,1');
+    Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store')->middleware('throttle:30,1');
+    Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store')->middleware('throttle:10,1');
+    Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv')->middleware('throttle:5,1');
 });
 
 // ===== テスト用ルート (local環境のみ) =====
