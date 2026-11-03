@@ -134,14 +134,6 @@ class ReviewController extends Controller
             'title' => $validated['title'] ?? null,
             'comment' => $validated['comment'] ?? null,
         ]);
-        $review->is_verified = true;
-        $review->save();
-
-        // Verified flag is set by the application, not via mass assignment
-        $review->is_verified = true;
-        $review->save();
-
-        // 実際の予約からのレビューなので自動的に認証済みにする
         $review->verify();
 
         return redirect()->route('reviews.show', $review)
