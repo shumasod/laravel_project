@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\Reservation;
 use App\Models\Accommodation;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -71,7 +72,8 @@ class ReviewController extends Controller
                 ->findOrFail($reservationId);
 
             // 自分の予約のみレビュー可能
-            if ($reservation->customer_id !== auth()->id()) {
+            $userCustomer = Customer::where('email', auth()->user()->email)->first();
+            if (!$userCustomer || $reservation->customer_id !== $userCustomer->id) {
                 abort(403);
             }
 
@@ -111,7 +113,8 @@ class ReviewController extends Controller
         $reservation = Reservation::with(['room.accommodation', 'customer'])->findOrFail($validated['reservation_id']);
 
         // 自分の予約のみレビュー可能
-        if ($reservation->customer_id !== auth()->id()) {
+        $userCustomer = Customer::where('email', auth()->user()->email)->first();
+        if (!$userCustomer || $reservation->customer_id !== $userCustomer->id) {
             abort(403);
         }
 
@@ -173,7 +176,8 @@ class ReviewController extends Controller
      */
     public function update(Request $request, Review $review)
     {
-        if ($review->customer_id !== auth()->id()) {
+        $userCustomer = Customer::where('email', auth()->user()->email)->first();
+        if (!$userCustomer || $review->customer_id !== $userCustomer->id) {
             abort(403, '自分のレビューのみ編集できます。');
         }
 
@@ -199,7 +203,8 @@ class ReviewController extends Controller
      */
     public function destroy(Review $review)
     {
-        if ($review->customer_id !== auth()->id()) {
+        $userCustomer = Customer::where('email', auth()->user()->email)->first();
+        if (!$userCustomer || $review->customer_id !== $userCustomer->id) {
             abort(403, '自分のレビューのみ削除できます。');
         }
 
