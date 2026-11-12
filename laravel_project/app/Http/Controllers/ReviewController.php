@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use App\Models\Accommodation;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -220,6 +221,13 @@ class ReviewController extends Controller
     public function addHelpfulVote(Review $review, Request $request)
     {
         $customer = auth()->user()->customer ?? abort(403);
+
+        $rateLimitKey = 'helpful_vote_' . $customer->id . '_' . $review->id;
+        if (Cache::has($rateLimitKey)) {
+            return redirect()->back()
+                ->with('error', 'この操作は短時間に繰り返せません。');
+        }
+        Cache::put($rateLimitKey, true, 60);
 
         $review->addHelpfulVote($customer);
 
