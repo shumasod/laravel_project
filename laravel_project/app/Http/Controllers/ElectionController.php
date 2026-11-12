@@ -458,6 +458,9 @@ class ElectionController extends Controller
      */
     public function exportReport(Request $request, Election $election)
     {
+        $request->validate([
+            'format' => 'nullable|in:json,csv',
+        ]);
         $format = $request->input('format', 'json');
 
         $data = [
