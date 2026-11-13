@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\Reservation;
 use App\Models\Accommodation;
+use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -71,7 +73,8 @@ class ReviewController extends Controller
                 ->findOrFail($reservationId);
 
             // 自分の予約のみレビュー可能
-            if ($reservation->customer_id !== auth()->id()) {
+            $userCustomer = Customer::where('email', auth()->user()->email)->first();
+            if (!$userCustomer || $reservation->customer_id !== $userCustomer->id) {
                 abort(403);
             }
 
@@ -111,7 +114,8 @@ class ReviewController extends Controller
         $reservation = Reservation::with(['room.accommodation', 'customer'])->findOrFail($validated['reservation_id']);
 
         // 自分の予約のみレビュー可能
-        if ($reservation->customer_id !== auth()->id()) {
+        $userCustomer = Customer::where('email', auth()->user()->email)->first();
+        if (!$userCustomer || $reservation->customer_id !== $userCustomer->id) {
             abort(403);
         }
 
@@ -134,13 +138,6 @@ class ReviewController extends Controller
             'title' => $validated['title'] ?? null,
             'comment' => $validated['comment'] ?? null,
         ]);
-        $review->is_verified = true;
-        $review->save();
-
-        // Verified flag is set by the application, not via mass assignment
-        $review->is_verified = true;
-        $review->save();
-
         // 実際の予約からのレビューなので自動的に認証済みにする
         $review->verify();
 
@@ -173,7 +170,8 @@ class ReviewController extends Controller
      */
     public function update(Request $request, Review $review)
     {
-        if ($review->customer_id !== auth()->id()) {
+        $userCustomer = Customer::where('email', auth()->user()->email)->first();
+        if (!$userCustomer || $review->customer_id !== $userCustomer->id) {
             abort(403, '自分のレビューのみ編集できます。');
         }
 
@@ -199,7 +197,8 @@ class ReviewController extends Controller
      */
     public function destroy(Review $review)
     {
-        if ($review->customer_id !== auth()->id()) {
+        $userCustomer = Customer::where('email', auth()->user()->email)->first();
+        if (!$userCustomer || $review->customer_id !== $userCustomer->id) {
             abort(403, '自分のレビューのみ削除できます。');
         }
 
@@ -215,6 +214,13 @@ class ReviewController extends Controller
     public function addHelpfulVote(Review $review, Request $request)
     {
         $customer = auth()->user()->customer ?? abort(403);
+
+        $rateLimitKey = 'helpful_vote_' . $customer->id . '_' . $review->id;
+        if (Cache::has($rateLimitKey)) {
+            return redirect()->back()
+                ->with('error', 'この操作は短時間に繰り返せません。');
+        }
+        Cache::put($rateLimitKey, true, 60);
 
         $review->addHelpfulVote($customer);
 
