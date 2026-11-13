@@ -72,12 +72,7 @@ Route::middleware('auth')->group(function () {
 // ===== 旅行検索サイト =====
 
 // トップ・検索 (rate limited)
-Route::middleware('throttle:60,1')->group(function () {
-    Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
-    Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
-    Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');
-});
-Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
+Route::get('/travel', [TravelController::class, 'index'])->middleware('throttle:60,1')->name('travel.index');
 Route::get('/travel/search', [TravelController::class, 'search'])->middleware('throttle:30,1')->name('travel.search');
 Route::get('/travel/suggest', [TravelController::class, 'suggest'])->middleware('throttle:60,1')->name('travel.suggest');
 
@@ -88,15 +83,19 @@ Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'rev
 
 // 予約フロー (認証必須 + レート制限)
 Route::middleware(['auth', 'throttle:20,1'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
-    Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
-    Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+    Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm')->middleware('throttle:10,1');
+    Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete')->middleware('throttle:5,1');
 });
 
 // お気に入り (認証必須 + レート制限)
 Route::middleware(['auth', 'throttle:30,1'])->group(function () {
     Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
     Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
+Route::middleware('auth')->group(function () {
+    Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add')->middleware('throttle:30,1');
+    Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove')->middleware('throttle:30,1');
 });
 
 // エリアAPI
@@ -106,14 +105,15 @@ Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.ar
 
 // トップ・検索 (rate limited)
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/events', [EventController::class, 'index'])->middleware('throttle:60,1')->name('events.index');
 Route::get('/events/search', [EventController::class, 'search'])->middleware('throttle:30,1')->name('events.search');
 Route::get('/events/calendar', [EventController::class, 'calendar'])->middleware('throttle:60,1')->name('events.calendar');
 
 // イベント詳細
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
-// お気に入り (認証必須)
-Route::middleware('auth')->group(function () {
+// お気に入り (認証必須 + レート制限)
+Route::middleware(['auth', 'throttle:30,1'])->group(function () {
     Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
     Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add')->middleware('throttle:30,1');
     Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove')->middleware('throttle:30,1');
@@ -121,6 +121,7 @@ Route::middleware('auth')->group(function () {
 
 // API (rate limited)
 Route::get('/api/events/search', [EventController::class, 'apiSearch'])->middleware('throttle:30,1')->name('events.api.search');
+Route::get('/api/events/search', [EventController::class, 'apiSearch'])->middleware('throttle:60,1')->name('events.api.search');
 
 // ===== 選挙分析システム =====
 
