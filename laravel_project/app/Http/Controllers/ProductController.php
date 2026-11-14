@@ -19,6 +19,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('admin');
         $query = Product::query();
 
         // 検索フィルタ
@@ -95,6 +96,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        Gate::authorize('admin');
         $transactions = $product->stockTransactions()
             ->latest()
             ->paginate(50);
@@ -150,6 +152,7 @@ class ProductController extends Controller
      */
     public function qrcode(Product $product)
     {
+        Gate::authorize('admin');
         $url = route('products.show', $product);
         $svg = QrCode::format('svg')
             ->size(200)
@@ -165,6 +168,7 @@ class ProductController extends Controller
      */
     public function qrcodeDownload(Product $product)
     {
+        Gate::authorize('admin');
         $url = route('products.show', $product);
         $png = QrCode::format('png')
             ->size(300)
