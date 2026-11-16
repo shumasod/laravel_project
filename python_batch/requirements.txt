@@ -59,7 +59,7 @@ pytest-cov==7.1.0
 faker==40.43.0
 
 # Utilities
-click==8.5.0
+click==8.5.1
 rich==15.0.0
 tenacity==9.2.1
 # SECURITY: Updated PyYAML to latest version for security improvements
