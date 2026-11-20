@@ -47,7 +47,7 @@ schedule==1.2.2
 apscheduler==3.11.3
 
 # Logging & Monitoring
-loguru==0.7.3
+loguru==0.8.0
 # SECURITY FIX: Updated to 1.45.1 to fix CVE-2024-40647
 sentry-sdk==2.75.0
 
