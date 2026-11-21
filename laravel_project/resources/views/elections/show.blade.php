@@ -348,6 +348,12 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
                     td.textContent = val;
                     tr.appendChild(td);
                 });
+                const tdRange = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
+                badge.textContent = result.within_range ? 'Yes' : 'No';
+                tdRange.appendChild(badge);
+                tr.appendChild(tdRange);
                 const tdBadge = document.createElement('td');
                 const badge = document.createElement('span');
                 badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
