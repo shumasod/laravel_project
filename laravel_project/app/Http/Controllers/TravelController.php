@@ -297,13 +297,16 @@ class TravelController extends Controller
             'accommodation_id' => 'required|exists:accommodations,id',
         ]);
 
-        $customerId = auth()->id();
-        if (!$customerId) {
+        if (!auth()->check()) {
             return response()->json(['status' => 'error', 'message' => 'ログインが必要です'], 401);
+        }
+        $customer = Customer::where('email', auth()->user()->email)->first();
+        if (!$customer) {
+            return response()->json(['status' => 'error', 'message' => '顧客情報が見つかりません'], 403);
         }
 
         Favorite::firstOrCreate([
-            'customer_id' => $customerId,
+            'customer_id' => $customer->id,
             'accommodation_id' => $validated['accommodation_id'],
         ]);
 
@@ -315,12 +318,15 @@ class TravelController extends Controller
      */
     public function removeFavorite(Request $request, int $accommodationId): JsonResponse
     {
-        $customerId = auth()->id();
-        if (!$customerId) {
+        if (!auth()->check()) {
             return response()->json(['status' => 'error', 'message' => 'ログインが必要です'], 401);
         }
+        $customer = Customer::where('email', auth()->user()->email)->first();
+        if (!$customer) {
+            return response()->json(['status' => 'error', 'message' => '顧客情報が見つかりません'], 403);
+        }
 
-        Favorite::where('customer_id', $customerId)
+        Favorite::where('customer_id', $customer->id)
             ->where('accommodation_id', $accommodationId)
             ->delete();
 
