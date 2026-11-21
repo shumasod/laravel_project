@@ -1,14 +1,14 @@
 # Core Dependencies
 python-dotenv==1.2.4
-pydantic==2.14.2
-pydantic-settings==2.16.1
-pydantic==2.14.1
+pydantic==2.14.3
+pydantic-settings==2.16.2
+pydantic==2.14.3
 pydantic-settings==2.16.2
 
 # Database
 # SECURITY FIX: Updated from 1.1.0 to fix SQL Injection vulnerability (CVE-2024-36039)
-pymysql==1.2.3
-SQLAlchemy==2.1.6
+pymysql==1.2.4
+SQLAlchemy==2.1.8
 psycopg2-binary==2.9.13
 
 # Web Scraping
@@ -21,7 +21,7 @@ requests==2.34.2
 aiohttp==3.14.5
 
 # Data Analysis
-pandas==3.1.0
+pandas==3.1.1
 numpy==2.5.4
 matplotlib==3.11.2
 numpy==2.5.4
@@ -31,14 +31,14 @@ openpyxl==3.1.5
 
 # API & HTTP
 httpx==0.28.1
-fastapi==0.161.1
+fastapi==0.162.5
 uvicorn==0.54.0
 
 # File Processing
 # SECURITY FIX: Updated to 10.3.0 to fix CVE-2024-28219 (High severity)
 Pillow==13.0.0
 # SECURITY FIX: Updated to 6.4.2 to fix infinite loop, malformed startxref, and missing /Root object vulnerabilities
-pypdf==6.21.2
+pypdf==7.0.1
 python-docx==1.2.0
 xlsxwriter==3.3.1
 
@@ -47,19 +47,19 @@ schedule==1.2.2
 apscheduler==3.11.3
 
 # Logging & Monitoring
-loguru==0.7.3
+loguru==0.8.0
 # SECURITY FIX: Updated to 1.45.1 to fix CVE-2024-40647
-sentry-sdk==2.73.0
+sentry-sdk==2.75.0
 
 # Testing
 pytest==9.1.1
 # COMPATIBILITY FIX: Updated to support pytest 8.0.0
-pytest-asyncio==1.4.1
+pytest-asyncio==1.5.0
 pytest-cov==7.1.0
-faker==40.43.0
+faker==40.54.0
 
 # Utilities
-click==8.5.0
+click==8.5.1
 rich==15.0.0
 tenacity==9.2.1
 # SECURITY: Updated PyYAML to latest version for security improvements
