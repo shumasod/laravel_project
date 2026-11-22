@@ -376,8 +376,15 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
     .then(data => {
         const select = this.querySelector('select[name="district_id"]');
         select.textContent = '';
-        select.appendChild(new Option('選択してください', ''));
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = '選択してください';
+        select.appendChild(defaultOpt);
         data.data.forEach(district => {
+            const opt = document.createElement('option');
+            opt.value = district.id;
+            opt.textContent = district.name;
+            select.appendChild(opt);
             select.appendChild(new Option(district.name, district.id));
         });
     });
@@ -388,8 +395,15 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
     .then(data => {
         const select = this.querySelector('select[name="party_id"]');
         select.textContent = '';
-        select.appendChild(new Option('選択してください', ''));
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = '選択してください';
+        select.appendChild(defaultOpt);
         data.data.forEach(party => {
+            const opt = document.createElement('option');
+            opt.value = party.id;
+            opt.textContent = party.name;
+            select.appendChild(opt);
             select.appendChild(new Option(party.name, party.id));
         });
     });
