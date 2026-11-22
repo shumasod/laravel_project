@@ -88,9 +88,15 @@ class ElectionController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $type = $request->input('type'); // house_of_representatives / house_of_councillors
-        $fromYear = $request->input('from_year', 2010);
-        $toYear = $request->input('to_year', 2026);
+        $request->validate([
+            'type'      => 'nullable|string|in:house_of_representatives,house_of_councillors',
+            'from_year' => 'nullable|integer|min:1900|max:2100',
+            'to_year'   => 'nullable|integer|min:1900|max:2100|gte:from_year',
+        ]);
+
+        $type = $request->input('type');
+        $fromYear = (int) $request->input('from_year', 2010);
+        $toYear   = (int) $request->input('to_year', 2026);
 
         $elections = $this->dataService->getElections($type, $fromYear, $toYear);
 
