@@ -10,6 +10,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        Gate::authorize('admin');
         $query = Product::query();
 
         if ($request->filled('search')) {
@@ -58,6 +59,11 @@ class ProductController extends Controller
         ]);
 
         Product::create($validated);
+        $initialStock = $validated['stock_quantity'];
+        unset($validated['stock_quantity']);
+        $product = Product::create($validated);
+        $product->stock_quantity = $initialStock;
+        $product->save();
 
         return redirect()->route('products.index')->with('success', '商品を登録しました');
     }
@@ -65,6 +71,11 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $transactions = $product->stockTransactions()->latest()->paginate(50);
+        Gate::authorize('admin');
+        $transactions = $product->stockTransactions()
+            ->latest()
+            ->paginate(50);
+
         return view('products.show', compact('product', 'transactions'));
     }
 
@@ -103,6 +114,8 @@ class ProductController extends Controller
         $g = hexdec(substr($fgHex, 2, 2));
         $b = hexdec(substr($fgHex, 4, 2));
 
+        Gate::authorize('admin');
+        $url = route('products.show', $product);
         $svg = QrCode::format('svg')
             ->size(200)
             ->errorCorrection('M')
@@ -115,6 +128,15 @@ class ProductController extends Controller
     public function qrcodeDownload(Product $product)
     {
         $png = QrCode::format('png')->size(300)->errorCorrection('M')->generate(route('products.show', $product));
+        Gate::authorize('admin');
+        $url = route('products.show', $product);
+        $png = QrCode::format('png')
+            ->size(300)
+            ->errorCorrection('M')
+            ->generate($url);
+
+        $filename = 'qrcode_' . $product->sku . '.png';
+
         return response($png, 200)
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'attachment; filename="qrcode_' . $product->sku . '.png"');
