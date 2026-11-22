@@ -326,26 +326,12 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
     .then(data => {
         if (data.status === 'success') {
             const container = document.getElementById('accuracyResults');
-            container.textContent = '';
             container.innerHTML = '';
-
-            const table = document.createElement('table');
-            table.className = 'table table-sm';
-            table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
-            const tbody = document.createElement('tbody');
-
-            const table = document.createElement('table');
-            table.className = 'table table-sm';
-            table.innerHTML = '<thead><tr><th>政党</th><th>予測</th><th>実績</th><th>誤差</th><th>範囲内</th></tr></thead>';
-            const tbody = document.createElement('tbody');
 
             const table = document.createElement('table');
             table.className = 'table table-sm';
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
-            ['政党', '予測', '実績', '誤差', '範囲内'].forEach(h => {
-                const th = document.createElement('th');
-                th.textContent = h;
             ['政党', '予測', '実績', '誤差', '範囲内'].forEach(text => {
                 const th = document.createElement('th');
                 th.textContent = text;
@@ -368,33 +354,8 @@ document.getElementById('validateAccuracy')?.addEventListener('click', function(
                 badge.textContent = result.within_range ? 'Yes' : 'No';
                 tdRange.appendChild(badge);
                 tr.appendChild(tdRange);
-                const tdBadge = document.createElement('td');
-                const badge = document.createElement('span');
-                badge.className = result.within_range ? 'badge bg-success' : 'badge bg-danger';
-                badge.textContent = result.within_range ? 'Yes' : 'No';
-                tdBadge.appendChild(badge);
-                tr.appendChild(tdBadge);
                 tbody.appendChild(tr);
             }
-            table.appendChild(tbody);
-            container.appendChild(table);
-
-            const p = document.createElement('p');
-            p.className = 'text-muted';
-            p.textContent = `平均誤差: ${Number(data.data.average_error)}議席`;
-            container.appendChild(p);
-
-            const p = document.createElement('p');
-            p.className = 'text-muted';
-            p.textContent = '平均誤差: ' + data.data.average_error + '議席';
-            container.appendChild(p);
-                const withinBadge = result.within_range
-                    ? '<span class="badge bg-success">Yes</span>'
-                    : '<span class="badge bg-danger">No</span>';
-                tr.innerHTML = `<td>${escapeHtml(party)}</td><td>${escapeHtml(result.predicted)}</td><td>${escapeHtml(result.actual)}</td><td>${escapeHtml(result.error)}</td><td>${withinBadge}</td>`;
-                tbody.appendChild(tr);
-            }
-
             table.appendChild(tbody);
             container.appendChild(table);
 
@@ -424,6 +385,7 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
             opt.value = district.id;
             opt.textContent = district.name;
             select.appendChild(opt);
+            select.appendChild(new Option(district.name, district.id));
         });
     });
 
@@ -442,6 +404,7 @@ document.getElementById('addResultModal')?.addEventListener('show.bs.modal', fun
             opt.value = party.id;
             opt.textContent = party.name;
             select.appendChild(opt);
+            select.appendChild(new Option(party.name, party.id));
         });
     });
 });
