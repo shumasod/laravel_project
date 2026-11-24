@@ -13,6 +13,13 @@ class ProductController extends Controller
         $query = Product::query();
         if ($request->filled('search')) {
             $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('sku', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%");
+            });
+        }
+        if ($request->boolean('alert_only')) { $query->belowReorderPoint(); }
+        $sortBy = $request->input('sort', 'stock_asc');
+        match ($sortBy) {
             $query->where(fn ($q) => $q->where('sku', 'like', "%{$search}%")->orWhere('name', 'like', "%{$search}%"));
         }
         if ($request->boolean('alert_only')) { $query->belowReorderPoint(); }
@@ -102,6 +109,7 @@ class ProductController extends Controller
             'description'    => ['nullable', 'string'],
             'stock_quantity' => ['required', 'integer', 'min:0'],
             'reorder_point'  => ['required', 'integer', 'min:0'],
+        ]));
         ]);
 
         Product::create($validated);
@@ -113,6 +121,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         return view('products.show', [
+            'product'      => $product,
             'product' => $product,
             'transactions' => $product->stockTransactions()->latest()->paginate(50),
         ]);
@@ -141,6 +150,7 @@ class ProductController extends Controller
             'name'          => ['required', 'string', 'max:255'],
             'description'   => ['nullable', 'string'],
             'reorder_point' => ['required', 'integer', 'min:0'],
+        ]));
         ]);
 
         $product->update($validated);
@@ -325,6 +335,10 @@ class ProductController extends Controller
         $copy->name = $product->name . '（コピー）';
         $copy->stock_quantity = 0;
         $copy->save();
+
+        return redirect()
+            ->route('products.edit', $copy)
+            ->with('success', '商品を複製しました。内容を確認して保存してください。');
         return redirect()->route('products.edit', $copy)
             ->with('success', '商品を複製しました。内容を確認して保存してください。');
         $copy->sku = $product->sku . '-copy-' . substr(uniqid(), -4);
