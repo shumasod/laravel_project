@@ -75,6 +75,7 @@ class ReservationController extends Controller
         ]);
 
         $allowedFields = ['customer_id', 'room_id', 'check_in_date', 'check_out_date', 'total_amount', 'notes'];
+        $reservation->update(array_intersect_key($validated, array_flip($allowedFields)));
         $reservation->update(Arr::only($validated, $allowedFields));
 
         if (!empty($validated['status'])) {
