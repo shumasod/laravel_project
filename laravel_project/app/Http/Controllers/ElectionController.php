@@ -88,9 +88,15 @@ class ElectionController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $type = $request->input('type'); // house_of_representatives / house_of_councillors
-        $fromYear = $request->input('from_year', 2010);
-        $toYear = $request->input('to_year', 2026);
+        $request->validate([
+            'type'      => 'nullable|string|in:house_of_representatives,house_of_councillors',
+            'from_year' => 'nullable|integer|min:1900|max:2100',
+            'to_year'   => 'nullable|integer|min:1900|max:2100|gte:from_year',
+        ]);
+
+        $type = $request->input('type');
+        $fromYear = (int) $request->input('from_year', 2010);
+        $toYear   = (int) $request->input('to_year', 2026);
 
         $elections = $this->dataService->getElections($type, $fromYear, $toYear);
 
@@ -227,6 +233,13 @@ class ElectionController extends Controller
      */
     public function pollData(Request $request): JsonResponse
     {
+        $request->validate([
+            'election_id' => 'nullable|integer|exists:elections,id',
+            'source'      => 'nullable|string|max:100',
+            'start_date'  => 'nullable|date',
+            'end_date'    => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $electionId = $request->input('election_id');
         $source = $request->input('source');
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : null;
@@ -356,6 +369,10 @@ class ElectionController extends Controller
      */
     public function districts(Request $request): JsonResponse
     {
+        $request->validate([
+            'house_type'    => 'nullable|in:house_of_representatives,house_of_councillors',
+            'district_type' => 'nullable|in:single_seat,proportional',
+        ]);
         $houseType = $request->input('house_type');
         $districtType = $request->input('district_type');
 
@@ -454,6 +471,9 @@ class ElectionController extends Controller
      */
     public function exportReport(Request $request, Election $election)
     {
+        $request->validate([
+            'format' => 'nullable|in:json,csv',
+        ]);
         $format = $request->input('format', 'json');
 
         $data = [

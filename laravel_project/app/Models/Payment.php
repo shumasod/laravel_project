@@ -20,15 +20,6 @@ class Payment extends Model
         'notes',
     ];
 
-    protected $guarded = [
-        'status',
-        'transaction_id',
-        'paid_at',
-        'refunded_at',
-        'refund_amount',
-        'failure_reason',
-    ];
-
     protected $casts = [
         'amount' => 'decimal:2',
         'refund_amount' => 'decimal:2',
