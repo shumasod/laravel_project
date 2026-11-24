@@ -4,6 +4,19 @@
 <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
     <h2><i class="bi bi-box-seam me-2"></i>{{ $product->name }}</h2>
     <div class="d-flex gap-2">
+        <form method="POST" action="{{ route('products.duplicate', $product) }}" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-outline-info"
+                onclick="return confirm('この商品を複製しますか？')">
+                <i class="bi bi-copy me-1"></i>複製
+            </button>
+        </form>
+        <a href="{{ route('products.edit', $product) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil me-1"></i>編集
+        </a>
+        <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ
+        </a>
         <a href="{{ route('products.edit', $product) }}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1"></i>編集</a>
         <a href="{{ route('products.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>一覧へ</a>
     </div>
@@ -19,6 +32,12 @@
                     <dt class="col-5 text-muted">在庫数</dt>
                     <dd class="col-7"><span class="fs-5 fw-bold {{ $product->isOutOfStock() ? 'text-danger' : 'text-success' }}">{{ number_format($product->stock_quantity) }}</span></dd>
                     <dt class="col-5 text-muted">発注点</dt><dd class="col-7">{{ number_format($product->reorder_point) }}</dd>
+                    <dt class="col-5 text-muted">ステータス</dt>
+                    <dd class="col-7">
+                        @if($product->isOutOfStock()) <span class="badge bg-danger">在庫切れ</span>
+                        @elseif($product->isBelowReorderPoint()) <span class="badge bg-warning text-dark">要発注</span>
+                        @else <span class="badge bg-success">正常</span> @endif
+                    </dd>
                 </dl>
             </div>
         </div>
@@ -29,6 +48,9 @@
                     <img src="{{ route('products.qrcode', $product) }}" alt="QR" width="200" height="200">
                 </div>
                 <p class="text-muted small mt-2 mb-3"><code>{{ $product->sku }}</code></p>
+                <a href="{{ route('products.qrcode.download', $product) }}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-download me-1"></i>PNGダウンロード
+                </a>
                 <div class="d-flex gap-2 justify-content-center flex-wrap">
                     <a href="{{ route('products.qrcode.download', $product) }}" class="btn btn-outline-primary btn-sm">
                         <i class="bi bi-download me-1"></i>PNG
@@ -44,6 +66,8 @@
         <div class="card mb-4">
             <div class="card-header fw-semibold"><i class="bi bi-arrow-left-right me-1"></i>在庫操作</div>
             <div class="card-body">
+                @if($errors->any())
+                    <div class="alert alert-danger">@foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
                 @if($errors->any())<div class="alert alert-danger">@foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>@endif
                 <form method="POST" action="{{ route('stock-transactions.store', $product) }}">
                     @csrf
@@ -137,6 +161,22 @@
                     @csrf
                     <div class="row g-3">
                         <div class="col-md-4">
+                            <label class="form-label fw-semibold">操作種別</label>
+                            <select name="type" class="form-select" required>
+                                <option value="IN">入庫</option>
+                                <option value="OUT">出庫</option>
+                                <option value="ADJUST">在庫調整</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">数量</label>
+                            <input type="number" name="quantity" class="form-control" min="1" value="1" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">理由・メモ</label>
+                            <input type="text" name="reason" class="form-control" placeholder="任意">
+                        </div>
+                        <div class="col-12"><button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>実行</button></div>
                             <label class="form-label">操作種別</label>
                             <select name="type" class="form-select" required>
                                 <option value="IN">入庫</option>
@@ -187,6 +227,14 @@
                         @forelse($transactions as $tx)
                         <tr>
                             <td class="text-muted small">{{ $tx->created_at->format('Y/m/d H:i') }}</td>
+                            <td>
+                                @if($tx->type->value==='IN') <span class="badge bg-success">入庫</span>
+                                @elseif($tx->type->value==='OUT') <span class="badge bg-danger">出庫</span>
+                                @else <span class="badge bg-secondary">調整</span> @endif
+                            </td>
+                            <td class="text-end fw-semibold">{{ number_format($tx->quantity) }}</td>
+                            <td class="text-muted small">{{ $tx->reason ?? '-' }}</td>
+                        </tr>
                             <td>@if($tx->type->value==='IN')<span class="badge bg-success">入庫</span>
                                 @elseif($tx->type->value==='OUT')<span class="badge bg-danger">出庫</span>
                                 @else<span class="badge bg-secondary">調整</span>@endif</td>
