@@ -89,6 +89,7 @@ class ElectionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $request->validate([
+            'type'      => 'nullable|in:house_of_representatives,house_of_councillors',
             'type'      => 'nullable|string|in:house_of_representatives,house_of_councillors',
             'from_year' => 'nullable|integer|min:1900|max:2100',
             'to_year'   => 'nullable|integer|min:1900|max:2100|gte:from_year',
@@ -236,6 +237,7 @@ class ElectionController extends Controller
         $request->validate([
             'election_id' => 'nullable|integer|exists:elections,id',
             'source'      => 'nullable|string|max:100',
+            'start_date'  => 'nullable|date|after_or_equal:1900-01-01',
             'start_date'  => 'nullable|date',
             'end_date'    => 'nullable|date|after_or_equal:start_date',
         ]);
