@@ -13,6 +13,27 @@ use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\TravelController;
 use App\Http\Controllers\EventController;
+use App\Models\Accommodation;
+use App\Models\Room;
+use App\Models\Customer;
+use App\Models\Reservation;
+use App\Models\PricingRule;
+use App\Models\RoomInventory;
+use App\Models\Payment;
+use App\Models\Review;
+use App\Services\ReservationService;
+use App\Services\PricingService;
+use App\Services\InventoryService;
+use App\Services\PaymentService;
+use App\Services\NotificationService;
+use App\Services\ReportService;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// 公開JSON API（認証不要）
+Route::get('/api/v1/products', [ProductController::class, 'apiSearch'])->name('api.products.search');
 
 Route::get('/', fn () => view('welcome'));
 
@@ -27,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('payments', PaymentController::class);
     Route::resource('reviews', ReviewController::class);
 
+    // ===== 在庫管理システム =====
     // ===== 在庫管理 =====
     Route::resource('products', ProductController::class);
     Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
@@ -75,6 +97,7 @@ Route::post('/travel/booking/complete', [TravelController::class, 'completeBooki
 Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
 Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
 Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
+
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
 Route::get('/events/calendar', [EventController::class, 'calendar'])->name('events.calendar');
@@ -83,6 +106,7 @@ Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name(
 Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
 Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
 Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('events.api.search');
+
 Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
 Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
 Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
