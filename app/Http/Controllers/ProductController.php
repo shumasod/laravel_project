@@ -38,6 +38,12 @@ class ProductController extends Controller
 
         $sortBy = $request->input('sort', 'stock_asc');
         switch ($sortBy) {
+            case 'stock_asc': $query->orderBy('stock_quantity', 'asc'); break;
+            case 'stock_desc': $query->orderBy('stock_quantity', 'desc'); break;
+            case 'name': $query->orderBy('name', 'asc'); break;
+        }
+
+        $products = $query->paginate(20);
             case 'stock_asc':
                 $query->orderBy('stock_quantity', 'asc');
                 break;
@@ -65,6 +71,9 @@ class ProductController extends Controller
     {
         return view('products.create');
     }
+
+    public function store(Request $request)
+    {
             case 'stock_asc': $query->orderBy('stock_quantity', 'asc'); break;
             case 'stock_desc': $query->orderBy('stock_quantity', 'desc'); break;
             case 'name': $query->orderBy('name', 'asc'); break;
@@ -109,6 +118,7 @@ class ProductController extends Controller
             'description'    => ['nullable', 'string'],
             'stock_quantity' => ['required', 'integer', 'min:0'],
             'reorder_point'  => ['required', 'integer', 'min:0'],
+        ]);
         ]));
         ]);
 
@@ -135,6 +145,9 @@ class ProductController extends Controller
     {
         return view('products.edit', compact('product'));
     }
+
+    public function update(Request $request, Product $product)
+    {
     public function edit(Product $product) { return view('products.edit', compact('product')); }
 
     public function update(Request $request, Product $product)
@@ -150,6 +163,7 @@ class ProductController extends Controller
             'name'          => ['required', 'string', 'max:255'],
             'description'   => ['nullable', 'string'],
             'reorder_point' => ['required', 'integer', 'min:0'],
+        ]);
         ]));
         ]);
 
@@ -405,6 +419,10 @@ class ProductController extends Controller
             ->limit(100)
             ->get(['id', 'sku', 'name', 'stock_quantity', 'reorder_point']);
 
+        return response()->json([
+            'data'  => $products,
+            'total' => $products->count(),
+        ]);
         if ($request->filled('q')) {
             $q = $request->input('q');
             $query->where(function ($sq) use ($q) {
