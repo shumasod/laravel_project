@@ -136,6 +136,9 @@ class StockTransactionController extends Controller
         if ($request->filled('product_id')) {
             $query->where('product_id', $request->integer('product_id'));
         }
+
+        $transactions = $query->latest()->get();
+
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->input('date_from'));
         }
@@ -179,6 +182,8 @@ class StockTransactionController extends Controller
             fclose($out);
         };
 
+        return response()->stream($callback, 200, $headers);
+    }
                 fputcsv($out, [$tx->created_at->format('Y-m-d H:i:s'), $tx->product->sku ?? '', $tx->product->name ?? '', $tx->type->label(), $tx->quantity, $tx->reason ?? '']);
             }
             fclose($out);

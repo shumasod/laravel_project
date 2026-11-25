@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
     Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
     Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
     // ===== 在庫管理 =====
     Route::resource('products', ProductController::class);
     Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
