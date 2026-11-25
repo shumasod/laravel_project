@@ -13,12 +13,15 @@ class PointTransaction extends Model
 
     protected $fillable = [
         'customer_id',
-        'type',
-        'points',
-        'balance_after',
         'description',
         'reservation_id',
         'expire_date',
+    ];
+
+    protected $guarded = [
+        'type',
+        'points',
+        'balance_after',
     ];
 
     protected $casts = [
@@ -60,17 +63,20 @@ class PointTransaction extends Model
         return DB::transaction(function () use ($customerId, $points, $description, $reservationId, $expireDate) {
             $customer = Customer::lockForUpdate()->findOrFail($customerId);
             $newBalance = $customer->total_points + $points;
-            $customer->update(['total_points' => $newBalance]);
+            $customer->total_points = $newBalance;
+            $customer->save();
 
-            return self::create([
-                'customer_id' => $customerId,
-                'type' => self::TYPE_EARN,
-                'points' => $points,
-                'balance_after' => $newBalance,
-                'description' => $description,
-                'reservation_id' => $reservationId,
-                'expire_date' => $expireDate,
-            ]);
+            $tx = new self();
+            $tx->customer_id = $customerId;
+            $tx->type = self::TYPE_EARN;
+            $tx->points = $points;
+            $tx->balance_after = $newBalance;
+            $tx->description = $description;
+            $tx->reservation_id = $reservationId;
+            $tx->expire_date = $expireDate;
+            $tx->save();
+
+            return $tx;
         });
     }
 
@@ -91,16 +97,19 @@ class PointTransaction extends Model
             }
 
             $newBalance = $customer->total_points - $points;
-            $customer->update(['total_points' => $newBalance]);
+            $customer->total_points = $newBalance;
+            $customer->save();
 
-            return self::create([
-                'customer_id' => $customerId,
-                'type' => self::TYPE_USE,
-                'points' => -$points,
-                'balance_after' => $newBalance,
-                'description' => $description,
-                'reservation_id' => $reservationId,
-            ]);
+            $tx = new self();
+            $tx->customer_id = $customerId;
+            $tx->type = self::TYPE_USE;
+            $tx->points = -$points;
+            $tx->balance_after = $newBalance;
+            $tx->description = $description;
+            $tx->reservation_id = $reservationId;
+            $tx->save();
+
+            return $tx;
         });
     }
 
