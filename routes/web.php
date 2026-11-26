@@ -32,6 +32,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// 管理系リソース (認証必須)
 // 公開JSON API（認証不要）
 Route::get('/api/v1/products', [ProductController::class, 'apiSearch'])->name('api.products.search');
 
@@ -49,6 +50,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('reviews', ReviewController::class);
 
     // ===== 在庫管理システム =====
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::resource('products', ProductController::class);
+    Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
+    Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
+    Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
     // ===== 在庫管理 =====
     Route::resource('products', ProductController::class);
     Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
@@ -64,6 +72,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
     Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
     Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::post('/products/{product}/quick-adjust', [StockTransactionController::class, 'quickAdjust'])->name('stock-transactions.quick-adjust');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+
+    // 決済関連のカスタムルート
+    Route::post('/payments/{payment}/process', [PaymentController::class, 'process'])->name('payments.process');
+    Route::post('/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
+    Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+
+    // レビュー関連のカスタムルート
     Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
     Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
     Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
@@ -75,6 +92,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/reviews/{review}/admin-response', [ReviewController::class, 'addAdminResponse'])->name('reviews.admin-response');
 });
 
+// レポート関連のルート (認証必須)
 Route::middleware('auth')->group(function () {
     Route::get('/reports/dashboard', [ReportController::class, 'dashboard'])->name('reports.dashboard');
     Route::get('/reports/reservations', [ReportController::class, 'reservations'])->name('reports.reservations');
@@ -85,6 +103,100 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 });
 
+// ===== 旅行検索サイト =====
+
+// トップ・検索
+Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
+Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
+Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');
+
+// 施設詳細
+Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->name('travel.show');
+Route::get('/travel/accommodations/{id}/plans', [TravelController::class, 'searchPlans'])->name('travel.plans');
+Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'reviews'])->name('travel.reviews');
+
+// 予約フロー
+Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
+Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
+Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+
+// お気に入り
+Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
+Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
+
+// エリアAPI
+Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
+
+// ===== イベント検索システム =====
+
+// トップ・検索
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
+Route::get('/events/calendar', [EventController::class, 'calendar'])->name('events.calendar');
+
+// イベント詳細
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+
+// お気に入り
+Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
+Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
+Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
+
+// API
+Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('events.api.search');
+
+// ===== 選挙分析システム =====
+
+// ダッシュボード
+Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
+
+// 選挙関連
+Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
+Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
+Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
+
+// 議席予測
+Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
+Route::get('/elections/{election}/predictions', [ElectionController::class, 'getPredictions'])->name('elections.predictions');
+Route::get('/elections/{election}/validate-accuracy', [ElectionController::class, 'validateAccuracy'])->name('elections.validate-accuracy');
+
+// 選挙比較
+Route::get('/elections-compare', [ElectionController::class, 'compare'])->name('elections.compare');
+
+// 選挙結果登録
+Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
+
+// 世論調査データ
+Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
+Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
+
+// 政党関連
+Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
+Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
+Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])->name('parties.trend');
+
+// 選挙区関連
+Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
+
+// インポート・エクスポート
+Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
+Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
+
+// ===== テスト用ルート (local環境のみ) =====
+if (!app()->environment('local', 'testing')) {
+    return;
+}
+
+// データベース状態確認
+Route::get('/test-db-status', function () {
+    return response()->json([
+        'accommodations' => Accommodation::count(),
+        'rooms' => Room::count(),
+        'customers' => Customer::count(),
+        'reservations' => Reservation::count(),
+        'pricing_rules' => PricingRule::count(),
+        'room_inventories' => RoomInventory::count(),
+    ]);
 Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
 Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
 Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');

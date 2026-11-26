@@ -18,6 +18,7 @@
 <div class="card mb-4">
     <div class="card-body">
         <form method="GET" action="{{ route('stock-transactions.index') }}" class="row g-2 align-items-end">
+            <div class="col-md-4">
             <div class="col-md-3">
                 <label class="form-label fw-semibold">キーワード（商品名・SKU）</label>
                 <input type="text" name="keyword" class="form-control" placeholder="商品名またはSKU" value="{{ request('keyword') }}">
@@ -30,6 +31,9 @@
                     <option value="OUT" @selected(request('type')==='OUT')>出庫</option>
                     <option value="ADJUST" @selected(request('type')==='ADJUST')>調整</option>
                 </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">絞り込み</button>
             </div>
             <div class="col-md-2">
                 <label class="form-label fw-semibold">開始日</label>

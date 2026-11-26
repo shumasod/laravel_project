@@ -337,6 +337,9 @@ class ProductController extends Controller
                 $p->order_quantity = max(0, $p->reorder_point * 2 - $p->stock_quantity);
                 return $p;
             });
+
+        return view('products.reorder-list', compact('products'));
+    }
         $products = Product::belowReorderPoint()->orderBy('stock_quantity', 'asc')->get()
             ->map(fn($p) => tap($p, fn($p) => $p->order_quantity = max(0, $p->reorder_point * 2 - $p->stock_quantity)));
         return view('products.reorder-list', compact('products'));
