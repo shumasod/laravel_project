@@ -50,6 +50,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('reviews', ReviewController::class);
 
     // ===== 在庫管理システム =====
+    Route::resource('products', ProductController::class);
+    Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
+    Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
+    Route::get('/products/{product}/label', [ProductController::class, 'label'])->name('products.label');
+    Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
     Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
     Route::resource('products', ProductController::class);
     Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
