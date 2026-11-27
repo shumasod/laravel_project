@@ -129,9 +129,23 @@
         </div>
     </nav>
 
+    @php
+        $lowStockCount = \App\Models\Product::belowReorderPoint()->count();
+    @endphp
+    @if($lowStockCount > 0)
+    <div class="alert alert-warning mb-0 rounded-0 py-2 text-center small" style="background:#fff3cd;border-left:none;border-right:none;">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <strong>{{ $lowStockCount }}件</strong>の商品が発注点を下回っています。
+        <a href="{{ route('products.index', ['alert_only' => 1]) }}" class="alert-link ms-1">確認する &rarr;</a>
+    </div>
+    @endif
+
     <div class="container">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
         @yield('content')
     </div>
