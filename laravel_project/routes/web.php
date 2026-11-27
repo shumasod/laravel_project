@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('reviews', ReviewController::class);
 
     // ===== 在庫管理システム =====
+    Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
     Route::get('/products/stats', [ProductController::class, 'stats'])->name('products.stats');
     Route::resource('products', ProductController::class);
     Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');

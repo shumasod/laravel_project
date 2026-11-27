@@ -253,6 +253,10 @@ Route::get('/api/v1/products/low-stock', [ProductController::class, 'apiLowStock
 Route::middleware('auth')->group(function () {
     Route::get('/', fn() => redirect()->route('products.index'));
 
+    // Static product routes BEFORE resource
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    Route::get('/products/export', [ProductController::class, 'exportCsv'])->name('products.export');
     // Static product routes BEFORE resource to avoid wildcard conflicts
     Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
     Route::get('/products/qr-all', [ProductController::class, 'qrAll'])->name('products.qr-all');
@@ -274,6 +278,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/{product}/label', [ProductController::class, 'label'])->name('products.label');
     Route::post('/products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
 
+    Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
+    Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
+    Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
     // Stock transaction routes — static before resource
     Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
     Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');

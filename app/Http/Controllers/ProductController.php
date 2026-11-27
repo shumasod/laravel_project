@@ -6,6 +6,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
+class ProductController extends Controller
+{
 /**
  * 商品管理コントローラー
  *
@@ -379,6 +381,39 @@ class ProductController extends Controller
 
     public function label(Product $product) { return view('products.qr-label', compact('product')); }
 
+    public function exportCsv(Request $request)
+    {
+        $query = Product::query();
+
+        if ($request->boolean('alert_only')) {
+            $query->belowReorderPoint();
+        }
+
+        $products = $query->orderBy('name')->get();
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="products_' . now()->format('Ymd_His') . '.csv"',
+        ];
+
+        $callback = function () use ($products) {
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($out, ['SKU', '商品名', '説明', '在庫数', '発注点', 'アラート']);
+            foreach ($products as $p) {
+                fputcsv($out, [
+                    $p->sku,
+                    $p->name,
+                    $p->description ?? '',
+                    $p->stock_quantity,
+                    $p->reorder_point,
+                    $p->stock_quantity <= $p->reorder_point ? '要発注' : '',
+                ]);
+            }
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, $headers);
     public function qrAll()
     {
         $products = Product::orderBy('name')->get();
@@ -524,6 +559,8 @@ class ProductController extends Controller
     public function apiSearch(Request $request)
     {
         $query = Product::query();
+        if ($request->filled('q')) {
+            $q = $request->input('q');
 
         if ($request->filled('q')) {
             $q = $request->input('q');

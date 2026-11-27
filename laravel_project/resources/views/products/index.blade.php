@@ -5,9 +5,14 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
     <h2><i class="bi bi-box-seam me-2"></i>商品一覧</h2>
-    <a href="{{ route('products.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle me-1"></i>商品登録
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('products.export') }}" class="btn btn-success">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSVエクスポート
+        </a>
+        <a href="{{ route('products.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>商品登録
+        </a>
+    </div>
 </div>
 
 {{-- 検索フォーム --}}
