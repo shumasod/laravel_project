@@ -33,6 +33,14 @@ Route::get('/', function () {
 });
 
 // 管理系リソース (認証必須)
+// 公開JSON API（認証不要）
+Route::get('/api/v1/products', [ProductController::class, 'apiSearch'])->name('api.products.search');
+
+Route::get('/', fn () => view('welcome'));
+
+// 公開JSON API（認証不要）
+Route::get('/api/v1/products/low-stock', [ProductController::class, 'apiLowStock'])->name('api.products.low-stock');
+
 Route::middleware('auth')->group(function () {
     Route::resource('accommodations', AccommodationController::class);
     Route::resource('rooms', RoomController::class);
@@ -48,6 +56,30 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/{product}/label', [ProductController::class, 'label'])->name('products.label');
     Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
     Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::resource('products', ProductController::class);
+    Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
+    Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
+    Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
+    // ===== 在庫管理 =====
+    Route::resource('products', ProductController::class);
+    Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
+    Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
+    Route::post('/products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
+    Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::get('/products/{product}/qrcode/download/svg', [ProductController::class, 'qrcodeSvgDownload'])->name('products.qrcode.download.svg');
+    Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    Route::resource('products', ProductController::class);
+    Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
+    Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
+    Route::post('/products/{product}/stock-transactions', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::post('/products/{product}/quick-adjust', [StockTransactionController::class, 'quickAdjust'])->name('stock-transactions.quick-adjust');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
 
     // 決済関連のカスタムルート
     Route::post('/payments/{payment}/process', [PaymentController::class, 'process'])->name('payments.process');
@@ -55,6 +87,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
 
     // レビュー関連のカスタムルート
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
+    Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
+
+    Route::post('/payments/{payment}/process', [PaymentController::class, 'process'])->name('payments.process');
+    Route::post('/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
+    Route::post('/payments/{payment}/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
     Route::post('/reviews/{review}/helpful', [ReviewController::class, 'addHelpfulVote'])->name('reviews.helpful');
     Route::post('/reviews/{review}/admin-response', [ReviewController::class, 'addAdminResponse'])->name('reviews.admin-response');
 });
@@ -164,4 +203,86 @@ Route::get('/test-db-status', function () {
         'pricing_rules' => PricingRule::count(),
         'room_inventories' => RoomInventory::count(),
     ]);
+Route::get('/travel', [TravelController::class, 'index'])->name('travel.index');
+Route::get('/travel/search', [TravelController::class, 'search'])->name('travel.search');
+Route::get('/travel/suggest', [TravelController::class, 'suggest'])->name('travel.suggest');
+Route::get('/travel/accommodations/{id}', [TravelController::class, 'show'])->name('travel.show');
+Route::get('/travel/accommodations/{id}/plans', [TravelController::class, 'searchPlans'])->name('travel.plans');
+Route::get('/travel/accommodations/{id}/reviews', [TravelController::class, 'reviews'])->name('travel.reviews');
+Route::get('/travel/booking/{plan}', [TravelController::class, 'booking'])->name('travel.booking');
+Route::post('/travel/booking/confirm', [TravelController::class, 'confirmBooking'])->name('travel.booking.confirm');
+Route::post('/travel/booking/complete', [TravelController::class, 'completeBooking'])->name('travel.booking.complete');
+Route::post('/travel/favorites', [TravelController::class, 'addFavorite'])->name('travel.favorites.add');
+Route::delete('/travel/favorites/{accommodation}', [TravelController::class, 'removeFavorite'])->name('travel.favorites.remove');
+Route::get('/travel/areas', [TravelController::class, 'areas'])->name('travel.areas');
+
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/events/search', [EventController::class, 'search'])->name('events.search');
+Route::get('/events/calendar', [EventController::class, 'calendar'])->name('events.calendar');
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+Route::get('/events/my/favorites', [EventController::class, 'favorites'])->name('events.favorites');
+Route::post('/events/favorites', [EventController::class, 'addFavorite'])->name('events.favorites.add');
+Route::delete('/events/favorites/{eventId}', [EventController::class, 'removeFavorite'])->name('events.favorites.remove');
+Route::get('/api/events/search', [EventController::class, 'apiSearch'])->name('events.api.search');
+
+Route::get('/elections/dashboard', [ElectionController::class, 'dashboard'])->name('elections.dashboard');
+Route::get('/elections', [ElectionController::class, 'index'])->name('elections.index');
+Route::post('/elections', [ElectionController::class, 'store'])->name('elections.store');
+Route::get('/elections/{election}', [ElectionController::class, 'show'])->name('elections.show');
+Route::post('/elections/{election}/predict', [ElectionController::class, 'predict'])->name('elections.predict');
+Route::get('/elections/{election}/predictions', [ElectionController::class, 'getPredictions'])->name('elections.predictions');
+Route::get('/elections/{election}/validate-accuracy', [ElectionController::class, 'validateAccuracy'])->name('elections.validate-accuracy');
+Route::get('/elections-compare', [ElectionController::class, 'compare'])->name('elections.compare');
+Route::post('/elections/{election}/results', [ElectionController::class, 'storeResult'])->name('elections.results.store');
+Route::get('/poll-data', [ElectionController::class, 'pollData'])->name('poll-data.index');
+Route::post('/poll-data', [ElectionController::class, 'storePollData'])->name('poll-data.store');
+Route::get('/parties', [ElectionController::class, 'parties'])->name('parties.index');
+Route::post('/parties', [ElectionController::class, 'storeParty'])->name('parties.store');
+Route::get('/parties/{party}/trend', [ElectionController::class, 'partyTrend'])->name('parties.trend');
+Route::get('/election-districts', [ElectionController::class, 'districts'])->name('districts.index');
+Route::post('/elections/import-csv', [ElectionController::class, 'importCsv'])->name('elections.import-csv');
+Route::get('/elections/{election}/export', [ElectionController::class, 'exportReport'])->name('elections.export');
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockTransactionController;
+use Illuminate\Support\Facades\Route;
+
+// Public JSON APIs (no auth required)
+Route::get('/api/v1/products', [ProductController::class, 'apiSearch'])->name('api.products.search');
+Route::get('/api/v1/products/low-stock', [ProductController::class, 'apiLowStock'])->name('api.products.low-stock');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/', fn() => redirect()->route('products.index'));
+
+    // Static product routes BEFORE resource to avoid wildcard conflicts
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/qr-all', [ProductController::class, 'qrAll'])->name('products.qr-all');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    Route::get('/products/alerts', [ProductController::class, 'alertDashboard'])->name('products.alerts');
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    // Static product routes BEFORE resource
+    Route::get('/products/reorder-list', [ProductController::class, 'reorderList'])->name('products.reorder-list');
+    Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('products.suggest');
+    Route::get('/products/import', [ProductController::class, 'importForm'])->name('products.import.form');
+    Route::post('/products/import', [ProductController::class, 'importCsv'])->name('products.import');
+
+    Route::resource('products', ProductController::class);
+
+    Route::get('/products/{product}/qrcode', [ProductController::class, 'qrcode'])->name('products.qrcode');
+    Route::get('/products/{product}/qrcode/download', [ProductController::class, 'qrcodeDownload'])->name('products.qrcode.download');
+    Route::get('/products/{product}/qrcode/download/svg', [ProductController::class, 'qrcodeSvgDownload'])->name('products.qrcode.download.svg');
+    Route::get('/products/{product}/label', [ProductController::class, 'label'])->name('products.label');
+    Route::post('/products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
+
+    // Stock transaction routes — static before resource
+    Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
+    Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
+    Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
+    Route::get('/stock-transactions/export', [StockTransactionController::class, 'export'])->name('stock-transactions.export');
+    Route::get('/stock-transactions/bulk', [StockTransactionController::class, 'bulk'])->name('stock-transactions.bulk');
+    Route::post('/stock-transactions/bulk', [StockTransactionController::class, 'bulkStore'])->name('stock-transactions.bulk.store');
+    Route::get('/stock-transactions/summary', [StockTransactionController::class, 'summary'])->name('stock-transactions.summary');
+    Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
+    Route::post('/products/{product}/stock', [StockTransactionController::class, 'store'])->name('stock-transactions.store');
+    Route::post('/products/{product}/quick-adjust', [StockTransactionController::class, 'quickAdjust'])->name('stock-transactions.quick-adjust');
 });
