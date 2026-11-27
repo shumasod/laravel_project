@@ -99,6 +99,7 @@
                             <li><a class="dropdown-item" href="{{ route('stock-transactions.index') }}"><i class="bi bi-clock-history"></i>在庫履歴</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('products.index', ['alert_only' => 1]) }}"><i class="bi bi-exclamation-triangle text-warning"></i>要発注アラート</a></li>
+                            <li><a class="dropdown-item" href="{{ route('products.stats') }}"><i class="bi bi-bar-chart-line text-info"></i>在庫統計</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
