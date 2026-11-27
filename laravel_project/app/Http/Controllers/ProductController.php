@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /**
@@ -34,9 +35,18 @@ class ProductController extends Controller
     }
 
     public function create() { return view('products.create'); }
+    /**
+     * 商品登録フォーム
+     */
+    public function create()
+    {
+        Gate::authorize('admin');
+        return view('products.create');
+    }
 
     public function store(Request $request)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:100', 'unique:products'],
             'name' => ['required', 'string', 'max:255'],
@@ -46,6 +56,18 @@ class ProductController extends Controller
         ]);
         Product::create($validated);
         return redirect()->route('products.index')->with('success', '商品を登録しました');
+
+        $product = Product::create($validated);
+        $product->stock_quantity = $validated['stock_quantity'];
+        $initialStock = $validated['stock_quantity'];
+        unset($validated['stock_quantity']);
+        $product = Product::create($validated);
+        $product->stock_quantity = $initialStock;
+        $product->save();
+
+        return redirect()
+            ->route('products.index')
+            ->with('success', '商品を登録しました');
     }
 
     public function show(Product $product)
@@ -55,9 +77,18 @@ class ProductController extends Controller
     }
 
     public function edit(Product $product) { return view('products.edit', compact('product')); }
+    /**
+     * 商品更新フォーム
+     */
+    public function edit(Product $product)
+    {
+        Gate::authorize('admin');
+        return view('products.edit', compact('product'));
+    }
 
     public function update(Request $request, Product $product)
     {
+        Gate::authorize('admin');
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku,' . $product->id],
             'name' => ['required', 'string', 'max:255'],
@@ -70,6 +101,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        Gate::authorize('admin');
         $product->delete();
         return redirect()->route('products.index')->with('success', '商品を削除しました');
     }
