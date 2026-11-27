@@ -24,7 +24,13 @@ class Review extends Model
         'title',
         'comment',
         'photos',
+    ];
+
+    protected $guarded = [
         'is_verified',
+    ];
+
+    protected $guarded = [
         'is_published',
         'admin_response',
         'admin_responded_at',
@@ -102,7 +108,8 @@ class Review extends Model
      */
     public function publish(): void
     {
-        $this->update(['is_published' => true]);
+        $this->is_published = true;
+        $this->save();
     }
 
     /**
@@ -110,7 +117,8 @@ class Review extends Model
      */
     public function unpublish(): void
     {
-        $this->update(['is_published' => false]);
+        $this->is_published = false;
+        $this->save();
     }
 
     /**
@@ -118,7 +126,8 @@ class Review extends Model
      */
     public function verify(): void
     {
-        $this->update(['is_verified' => true]);
+        $this->is_verified = true;
+        $this->save();
     }
 
     /**
@@ -126,10 +135,9 @@ class Review extends Model
      */
     public function addAdminResponse(string $response): void
     {
-        $this->update([
-            'admin_response' => $response,
-            'admin_responded_at' => now(),
-        ]);
+        $this->admin_response = $response;
+        $this->admin_responded_at = now();
+        $this->save();
     }
 
     /**
