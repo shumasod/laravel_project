@@ -50,8 +50,18 @@ class Reservation extends Model
         'total_amount',
         'applied_discounts',
         'price_breakdown',
-        'cancelled_at',
         'cancellation_reason',
+        'notes',
+    ];
+
+    protected $guarded = [
+        'status',
+        'payment_status',
+        'actual_check_in_time',
+        'actual_check_out_time',
+        'cancelled_at',
+        'created_by_user_id',
+        'updated_by_user_id',
     ];
 
     protected $casts = [

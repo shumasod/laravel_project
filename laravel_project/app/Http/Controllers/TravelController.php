@@ -211,7 +211,7 @@ class TravelController extends Controller
             'name_kana' => 'required|string|max:100',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
-            'arrival_time' => 'required|string',
+            'arrival_time' => 'required|string|max:50',
             'special_requests' => 'nullable|string|max:1000',
             'payment_method' => 'required|in:on_site,credit_card',
         ]);
@@ -247,7 +247,7 @@ class TravelController extends Controller
             'name_kana' => 'required|string|max:100',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
-            'arrival_time' => 'required|string',
+            'arrival_time' => 'required|string|max:50',
             'special_requests' => 'nullable|string|max:1000',
             'payment_method' => 'required|in:on_site,credit_card',
         ]);
@@ -297,13 +297,16 @@ class TravelController extends Controller
             'accommodation_id' => 'required|exists:accommodations,id',
         ]);
 
-        $customerId = auth()->id();
-        if (!$customerId) {
+        if (!auth()->check()) {
             return response()->json(['status' => 'error', 'message' => 'ログインが必要です'], 401);
+        }
+        $customer = Customer::where('email', auth()->user()->email)->first();
+        if (!$customer) {
+            return response()->json(['status' => 'error', 'message' => '顧客情報が見つかりません'], 403);
         }
 
         Favorite::firstOrCreate([
-            'customer_id' => $customerId,
+            'customer_id' => $customer->id,
             'accommodation_id' => $validated['accommodation_id'],
         ]);
 
@@ -315,12 +318,15 @@ class TravelController extends Controller
      */
     public function removeFavorite(Request $request, int $accommodationId): JsonResponse
     {
-        $customerId = auth()->id();
-        if (!$customerId) {
+        if (!auth()->check()) {
             return response()->json(['status' => 'error', 'message' => 'ログインが必要です'], 401);
         }
+        $customer = Customer::where('email', auth()->user()->email)->first();
+        if (!$customer) {
+            return response()->json(['status' => 'error', 'message' => '顧客情報が見つかりません'], 403);
+        }
 
-        Favorite::where('customer_id', $customerId)
+        Favorite::where('customer_id', $customer->id)
             ->where('accommodation_id', $accommodationId)
             ->delete();
 
@@ -332,7 +338,14 @@ class TravelController extends Controller
      */
     public function suggest(Request $request): JsonResponse
     {
+        $request->validate(['q' => 'nullable|string|max:200']);
+
         $keyword = $request->input('q', '');
+        $validated = $request->validate([
+            'q' => 'nullable|string|max:100',
+        ]);
+
+        $keyword = $validated['q'] ?? '';
 
         if (mb_strlen($keyword) < 1) {
             return response()->json(['data' => []]);
@@ -348,8 +361,20 @@ class TravelController extends Controller
      */
     public function areas(Request $request): JsonResponse
     {
-        $parentId = $request->input('parent_id');
-        $level = $request->input('level');
+        $request->validate([
+            'parent_id' => 'nullable|integer|exists:areas,id',
+            'level'     => 'nullable|integer|min:1|max:5',
+        ]);
+
+        $parentId = $request->integer('parent_id') ?: null;
+        $level = $request->integer('level') ?: null;
+        $validated = $request->validate([
+            'parent_id' => 'nullable|integer|min:1',
+            'level'     => 'nullable|integer|min:1|max:5',
+        ]);
+
+        $parentId = $validated['parent_id'] ?? null;
+        $level    = $validated['level'] ?? null;
 
         $query = Area::query();
 
@@ -369,8 +394,13 @@ class TravelController extends Controller
      */
     public function reviews(Request $request, int $accommodationId): JsonResponse
     {
-        $perPage = $request->input('per_page', 10);
-        $sort = $request->input('sort', 'newest');
+        $validated = $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:50',
+            'sort'     => 'nullable|in:newest,rating_high,rating_low,helpful',
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+        $sort = $validated['sort'] ?? 'newest';
 
         $query = Review::with('customer:id,name')
             ->where('accommodation_id', $accommodationId)

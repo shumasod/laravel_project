@@ -227,6 +227,7 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('products.index') }}"><i class="bi bi-list-ul"></i>商品一覧</a></li>
                             <li><a class="dropdown-item" href="{{ route('products.create') }}"><i class="bi bi-plus-circle"></i>商品登録</a></li>
+                            <li><a class="dropdown-item" href="{{ route('products.qrcode.batch') }}"><i class="bi bi-printer"></i>一括QR印刷</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('stock-transactions.index') }}"><i class="bi bi-clock-history"></i>在庫履歴</a></li>
                             <li><hr class="dropdown-divider"></li>
