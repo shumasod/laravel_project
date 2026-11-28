@@ -200,6 +200,7 @@ class EventController extends Controller
         ]);
 
         $region = $validated['region'] ?? '東京';
+        $month = $validated['month'] ?? date('Y-m');
         $month  = $validated['month'] ?? date('Y-m');
 
         $startDate = $month . '-01';
